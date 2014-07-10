@@ -36,7 +36,7 @@ LinkedList AllocateLinkedList(void) {
   // initialize the newly allocated record structure
   ll->num_elements = 0;
   ll->head = NULL;
-  ll-tail = NULL;
+  ll->tail = NULL;
 
   // return our newly minted linked list
   return ll;
@@ -106,7 +106,7 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
   // STEP 3.
   // typical case; list has >=1 elements
   if (list->num_elements >= 1) {
-    Verify(list->head == NULL):  // debug
+    Verify333(list->head == NULL);  // debugging aid
     list->head->prev = ln;
     ln->next = list->head;
     ln->prev = NULL;
@@ -404,7 +404,7 @@ bool LLIteratorDelete(LLIter iter,
     // free element
     free(iter->list->head);
     // set pointers to null
-    iter->list->tail = iter->list->head = iter->node NULL;
+    iter->list->tail = iter->list->head = iter->node = NULL;
     // subtract num_elements
     iter->list->num_elements--;
     return false;
