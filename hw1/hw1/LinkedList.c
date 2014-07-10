@@ -34,8 +34,9 @@ LinkedList AllocateLinkedList(void) {
 
   // Step 1.
   // initialize the newly allocated record structure
-
-
+  ll->num_elements = 0;
+  ll->head = NULL;
+  ll-tail = NULL;
 
   // return our newly minted linked list
   return ll;
@@ -51,7 +52,18 @@ void FreeLinkedList(LinkedList list,
   // sweep through the list and free all of the nodes' payloads as
   // well as the nodes themselves
   while (list->head != NULL) {
+    // Set curr ptr to head and shift head to next
+    LinkedListNodePtr curr = list->head;
+    list->head = list->head->next;
 
+    // free payload
+    payload_free_function(curr->payload);
+
+    // free node
+    free(curr);
+
+    // subtract the number of elements by 1
+    list->num_elements--;
   }
 
   // free the list record
@@ -93,6 +105,16 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
 
   // STEP 3.
   // typical case; list has >=1 elements
+  if (list->num_elements >= 1) {
+    Verify(list->head == NULL):  // debug
+    list->head->prev = ln;
+    ln->next = list->head;
+    ln->prev = NULL;
+    list->head = ln;
+    list->num_elements++;
+
+    return true;
+  }
 
 
 
@@ -112,8 +134,24 @@ bool PopLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
   // Be sure to call free() to deallocate the memory that was
   // previously allocated by PushLinkedList().
 
-
-
+  // Test for empty list
+  if (list->num_elements < 1) {
+    return false;
+  } 
+  // Single element case
+  else if (list->num_elements == 1) {
+    *payload_ptr = list->head->payload;
+    free(list->head);
+    list->head = list->tail = NULL;
+    list->num_elements--;
+  }
+  // >=2 element case
+  else {
+    *payload_ptr = list->head->payload;
+    list->head = list->head->next;
+    list->head->prev = NULL;
+    free(list->head);
+  }
   return true;
 }
 
@@ -125,6 +163,37 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
   // PushLinkedList, but obviously you need to add to the end
   // instead of the beginning.
 
+  // allocate space for the new node.
+  LinkedListNodePtr ln =
+    (LinkedListNodePtr) malloc(sizeof(LinkedListNode));
+  if (ln == NULL) {
+    // out of memory
+    return false;
+  }
+
+  // Set the payload
+  ln->payload = payload;
+
+  if (list->num_elements == 0) {
+    // degenerate case; list is currently empty
+    Verify333(list->head == NULL);  // debugging aid
+    Verify333(list->tail == NULL);  // debugging aid
+    ln->next = ln->prev = NULL;
+    list->head = list->tail = ln;
+    list->num_elements = 1U;
+    return true;
+  }
+
+  // typical case; list has >=1 elements
+  if (list->num_elements >= 1) {
+    ln->next = NULL;
+    ln->prev = list->tail;
+    list->tail->next = ln;
+    list->tail = ln;
+    list->num_elements++;
+
+    return true;
+  }
 
 
   return true;
@@ -135,9 +204,26 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
   Verify333(payload_ptr != NULL);
   Verify333(list != NULL);
 
-  // Step 6: implement SliceLinkedList.
+  // Step 6: implement SliceLinkedList. (mostly copied from Step 4)
 
-
+  // Test for empty list
+  if (list->num_elements < 1) {
+    return false;
+  } 
+  // Single element case
+  else if (list->num_elements == 1) {
+    *payload_ptr = list->head->payload;
+    free(list->head);
+    list->head = list->tail = NULL;
+    list->num_elements--;
+  }
+  // >=2 element case
+  else {
+    *payload_ptr = list->tail->payload;
+    list->tail = list->tail->next;
+    list->tail->next = NULL;
+    free(list->tail);
+  }
 
   return true;
 }
@@ -232,7 +318,12 @@ bool LLIteratorNext(LLIter iter) {
   // Step 7: if there is another node beyond the iterator, advance to it,
   // and return true.
 
-
+  // check for additional node
+  if (iter->node->next != NULL) {
+    // if it exists, advance to it
+    iter->node = iter->node->next;
+    return true;
+  }
 
   // Nope, there isn't another node, so return failure.
   return false;
@@ -260,9 +351,14 @@ bool LLIteratorPrev(LLIter iter) {
   // Step 8:  if there is another node beyond the iterator, advance to it,
   // and return true.
 
+  // check for previous node
+  if (iter->node->prev != NULL) {
+    // if it exists, advance
+    iter->node = iter->node->prev;
+    return true;
+  }
 
-
-  // nope, so return failure.
+  // Nope, so return failure.
   return false;
 }
 
@@ -297,6 +393,56 @@ bool LLIteratorDelete(LLIter iter,
   // the iterator is pointing to, and also free any LinkedList
   // data structure element as appropriate.
 
+
+  // degenerate case: the list becomes empty after deleting.
+  if (iter->list->num_elements < 1) {
+    return false
+  }
+  else if (iter->list->num_elements == 1) {
+    // free payload
+    payload_free_function(iter->list->head->payload);
+    // free element
+    free(iter->list->head);
+    // set pointers to null
+    iter->list->tail = iter->list->head = iter->node NULL;
+    // subtract num_elements
+    iter->list->num_elements--;
+    return false;
+  }
+  // degenerate case: iter points at head
+  else if (iter->node == iter->list->head) {
+    // move to new head
+    iter->list->head = iter->list->head->next;
+    // set prev to NULL
+    iter->list->head->prev = NULL;
+    // free payload
+    payload_free_function(iter->node->payload);
+    free(iter->list->head);
+    iter->node = iter->list->head;
+    // subtract num_elements
+    iter->list->num_elements--;
+  }
+  // degenerate case: iter points at tail
+  else if (iter->node == iter->list->tail) {
+    iter->list->tail = iter->list->tail->prev;
+    iter->list->tail->next = NULL;
+    payload_free_function(iter->node->payload);
+    free(iter->list->tail);
+    iter->node = iter->list->tail;
+    // subtract num_elements
+    iter->list->num_elements--;
+  }
+  // fully general case: iter points in the middle of a list,
+  //                       and you have to "splice".
+  else {
+    iter->node->prev->next = iter->node->next;
+    iter->node->prev->next->prev = iter->node->prev;
+    payload_free_function(iter->node->payload);
+    free(iter->node);
+    iter->node = iter->node->prev->next;
+    // subtract num_elements
+    iter->list->num_elements--;
+  }
 
 
   return true;
