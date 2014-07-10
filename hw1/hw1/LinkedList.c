@@ -396,7 +396,7 @@ bool LLIteratorDelete(LLIter iter,
 
   // degenerate case: the list becomes empty after deleting.
   if (iter->list->num_elements < 1) {
-    return false
+    return false;
   }
   else if (iter->list->num_elements == 1) {
     // free payload
