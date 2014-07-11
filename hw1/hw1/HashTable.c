@@ -232,7 +232,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   payloadPtr = NULL;
 
   LLIteratorGetPayload(iter, (void **) &payloadPtr);
-  while (LLIteratorNext(iter)) {
+  do {
     if (payloadPtr->key == key) {
       *keyPtr = *payloadPtr;
 
@@ -246,7 +246,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
     } else {
       LLIteratorGetPayload(iter, (void **) keyPtr);
     }
-  }
+  } while (LLIteratorNext(iter));
 
 
   
