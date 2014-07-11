@@ -193,7 +193,7 @@ int InsertHashTable(HashTable table,
 
   if (NumElementsInLinkedList(insertchain) == 0) {
     // empty chain; no need to search for recurring key
-    if (AppendLinkedList(insertchain, (void *) payload_ptr)) {
+    if (PushLinkedList(insertchain, (void *) payload_ptr)) {
       // append success; increment num_elements and return success
       table->num_elements++;
       return 1;
@@ -215,7 +215,7 @@ int InsertHashTable(HashTable table,
       return 0;
     } else if (result == 0) {
       // no existing key/value with that key; append new keyvalue to list
-      if (AppendLinkedList(insertchain, (void *) payload_ptr)) {
+      if (PushLinkedList(insertchain, (void *) payload_ptr)) {
         // append success; increment num_elements and return success
         table->num_elements++;
         return 1;
