@@ -214,6 +214,8 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     free(list->head);
     list->head = list->tail = NULL;
     list->num_elements--;
+
+    return true;
   }
   // >=2 element case
   else {
@@ -222,7 +224,10 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     list->tail = list->tail->prev;
     list->tail->next = NULL;
     free(list->tail);
+    list->tail = NULL;
     list->num_elements--;
+
+    return true;
   }
 
   return true;
