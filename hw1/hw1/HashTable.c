@@ -196,8 +196,6 @@ int InsertHashTable(HashTable table,
     if (AppendLinkedList(insertchain, (void *) payload_ptr)) {
       // append success; increment num_elements and return success
       table->num_elements++;
-      free(payload_ptr);
-      payload_ptr = NULL;
       return 1;
     } else {
       // append failed; prevent memory leak and return failure
