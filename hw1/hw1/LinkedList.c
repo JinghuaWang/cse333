@@ -396,52 +396,53 @@ bool LLIteratorDelete(LLIter iter,
 
   printf("\nNUM ELEMENTS EARLY = %d\n", iter->list->num_elements);
 
-  // free node payload (needed in all cases)
-  payload_free_function(iter->node->payload);
-
   // degenerate case: empty list.
   if (iter->list->num_elements < 1) {
     return false;
   }
   // degenerate case: the list becomes empty after deleting
   else if (iter->list->num_elements == 1) {
-    void *payload;
-    PopLinkedList(iter->list, &payload);
-    payload_free_function(payload);
-    iter->node = NULL;
-    iter->list->num_elements--;
+    LinkedListNodePtr listnode = iter->list;
+    payload_free_function(listnode->head->payload);
+    free(listnode->head);
+    listnode->head = listnode->tail = listnode = NULL;
+    iter->list->num_elements = 0;
     return false;
   }
   // degenerate case: iter points at head
   else if (iter->node == iter->list->head) {
-    void *payload;
-    PopLinkedList(iter->list, &payload);
-    payload_free_function(payload);
+    LinkedListNodePtr nextnode = iter->node->next;
+    payload_free_function(iter->node->payload);
+    free(iter->list->head);
+    iter->list->head = nextnode;
     iter->node = iter->list->head;
+    iter->node->prev = NULL;
 
   }
   // degenerate case: iter points at tail
   else if (iter->node == iter->list->tail) {
-    void *payload;
-    SliceLinkedList(iter->list, &payload);
-    payload_free_function(payload);
+    LinkedListNodePtr prevnode = iter->node->prev;
+    payload_free_function(iter->node->payload);
+    free(iter->list->tail);
+    iter->list->tail = prevnode;
     iter->node = iter->list->tail;
+    iter->node->next = NULL;
   }
   // fully general case: iter points in the middle of a list,
   //                       and you have to "splice".
   else {
-    void *payload;
-    payload = iter->node->payload;
-    iter->node->prev->next = iter->node->next;
-    iter->node->next->prev = iter->node->prev;
-    payload_free_function(payload);
-    iter->node = iter->node->next;
+    LinkedListNodePtr nextnode = iter->node->next;
+    payload_free_function(iter->node->payload);
+    iter->node->prev->next = nextnode;
+    nextnode->prev = iter->node->prev;
+    iter->node = iter->list->head;
     free(iter->node);
-    iter->list->num_elements--;
+    iter->node = nextnode;
+
   }
 
   // subtract num_elements
-  
+  iter->list->num_elements--;
   printf("\nNUM ELEMENTS HERE = %d\n", iter->list->num_elements);
   return true;
 }
