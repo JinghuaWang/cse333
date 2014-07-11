@@ -227,11 +227,12 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
 
   do {
     HTKeyValue *payloadPtr = NULL;
-    LLIteratorGetPayload(iter, (void *) &payloadPtr);
+    LLIteratorGetPayload(iter, (void **) &payloadPtr);
 
     if (payloadPtr->key == key) {
       *keyPtr = *payloadPtr;
       if (remove) {
+        free(payloadPtr);
         LLIteratorDelete(iter, LLNullFree);  // return payload and free it 
       }
 
