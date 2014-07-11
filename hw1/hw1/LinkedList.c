@@ -438,7 +438,6 @@ bool LLIteratorDelete(LLIter iter,
     payload_free_function(iter->node->payload);
     iter->node->prev->next = nextnode;
     nextnode->prev = iter->node->prev;
-    iter->node = iter->list->head;
     free(iter->node);
     iter->node = nextnode;
 
