@@ -201,7 +201,7 @@ int InsertHashTable(HashTable table,
     table->num_elements--;
   }
 
-  if (AppendinkedList(insertchain, newnode)) {
+  if (AppendLinkedList(insertchain, newnode)) {
     table->num_elements++;
     return result + 1;
   } else {
