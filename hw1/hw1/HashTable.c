@@ -181,7 +181,7 @@ int InsertHashTable(HashTable table,
   // all that logic inside here.  You might also find that your helper
   // can be reused in steps 2 and 3.
 
-  HTKeyValuePtr newnode = (HTKeyValuePtr) malloc(sizeof(HTKeyValue));
+  HTKeyValuePtr newnodePtr = (HTKeyValuePtr) malloc(sizeof(HTKeyValue));
 
   // malloc check
   if (newnodePtr == NULL) {
