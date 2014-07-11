@@ -267,6 +267,7 @@ int RemoveFromHashTable(HashTable table,
                         HTKey_t key,
                         HTKeyValue *keyvalue) {
   Verify333(table != NULL);
+  Verify333(keyvalue != NULL);
 
   // Step 3 -- implement RemoveFromHashTable.
 
@@ -276,6 +277,11 @@ int RemoveFromHashTable(HashTable table,
   LinkedList chain = table->buckets[bucket];
 
   int helper = HelperFunctionHashTable(chain, key, keyvalue, true);
+
+  // key found
+  if (result == 1) {
+    table->num_elements--;
+  }
 
   return helper;  // you may need to change this return value.
 }
