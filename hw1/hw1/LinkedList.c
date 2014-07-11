@@ -223,7 +223,6 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     list->tail = list->tail->prev;
     list->tail->next = NULL;
     free(list->tail);
-    list->tail = NULL;
     list->num_elements--;
   }
 
