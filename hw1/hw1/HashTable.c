@@ -409,13 +409,13 @@ int HTIteratorNext(HTIter iter) {
 
         // nonempty bucket found
         iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
-      }
-    }
 
-    if (iter->bucket_it == NULL) {
-      return 0;
-    } else {
-      return 1;
+        if (iter->bucket_it == NULL) {
+          return 0;
+        } else {
+          return 1;
+        }
+      }
     }
   }
 
