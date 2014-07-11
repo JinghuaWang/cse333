@@ -161,6 +161,13 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
   // PushLinkedList, but obviously you need to add to the end
   // instead of the beginning.
 
+
+  if (list->num_elements == 0) {
+    // degenerate case; list is currently empty
+    return PushLinkedList(list, payload);
+  }
+
+
   // allocate space for the new node.
   LinkedListNodePtr ln =
     (LinkedListNodePtr) malloc(sizeof(LinkedListNode));
@@ -172,22 +179,14 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
   // Set the payload
   ln->payload = payload;
 
-  if (list->num_elements == 0) {
-                  // degenerate case; list is currently empty
-                  Verify333(list->head == NULL);  // debugging aid
-                  Verify333(list->tail == NULL);  // debugging aid
-                  // ln->next = ln->prev = NULL;
-                  // list->head = list->tail = ln;
-                  // list->num_elements = 1U;
-                  // return true;
-    return PushLinkedList(list, payload);
-  }
 
   // typical case; list has >=1 elements
   if (list->num_elements >= 1) {
+    Verify333(list->head == NULL);  // debugging aid
+    Verify333(list->tail == NULL);  // debugging aid
     ln->next = NULL;
+    ln->prev = list->tail;    
     list->tail->next = ln;
-    ln->prev = list->tail;
     list->tail = ln;
     list->num_elements++;
 
@@ -209,19 +208,20 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
   if (list->num_elements == 0) {
     return false;
   } 
+
+  *payload_ptr = list->head->payload;
+
   // Single element case
-  else if (list->num_elements == 1) {
-    *payload_ptr = list->head->payload;
+  if (list->num_elements == 1) {
+    list->tail = NULL;
     free(list->head);
-    list->head = list->tail = NULL;
+    list->head = NULL;
     list->num_elements--;
 
     return true;
   }
   // >=2 element case
   else {
-    *payload_ptr = list->tail->payload;
-    // LinkedListNodePtr oldnode = list->tail;
     list->tail = list->tail->prev;
     list->tail->next = NULL;
     free(list->tail);
@@ -403,48 +403,56 @@ bool LLIteratorDelete(LLIter iter,
   // free node payload (needed in all cases)
   payload_free_function(iter->node->payload);
 
-  // degenerate case: the list becomes empty after deleting.
+  // degenerate case: empty list.
   if (iter->list->num_elements < 1) {
     return false;
   }
+  // degenerate case: the list becomes empty after deleting
   else if (iter->list->num_elements == 1) {
-    // free element
-    free(iter->list->head);
-    // set pointers to null
-    iter->list->tail = iter->list->head = iter->node = NULL;
-    // subtract num_elements
+    void *payload;
+    PopLinkedList(iter->list, &payload);
+    payload_free_function(payload);
+    iter->node = NULL;
     iter->list->num_elements--;
     return false;
   }
   // degenerate case: iter points at head
   else if (iter->node == iter->list->head) {
-    // move to new head
-    iter->list->head = iter->list->head->next;
-    // set prev to NULL
-    iter->list->head->prev = NULL;
-    free(iter->list->head);
+    void *payload;
+    PopLinkedList(iter->list, &payload);
+    payload_free_function(payload);
     iter->node = iter->list->head;
     // subtract num_elements
     iter->list->num_elements--;
+
+    return true;
   }
   // degenerate case: iter points at tail
   else if (iter->node == iter->list->tail) {
-    iter->list->tail = iter->list->tail->prev;
-    iter->list->tail->next = NULL;
-    free(iter->list->tail);
+    void *payload;
+    SliceLinkedList(iter->list, &payload);
+    payload_free_function(payload);
     iter->node = iter->list->tail;
     // subtract num_elements
     iter->list->num_elements--;
+
+    return true;
   }
   // fully general case: iter points in the middle of a list,
   //                       and you have to "splice".
   else {
+    void *payload;
+    payload = iter->node->payload;
     iter->node->prev->next = iter->node->next;
-    iter->node->prev->next->prev = iter->node->prev;
+    iter->node->next->prev = iter->node->prev;
+    payload_free_function(payload);
+    iter->node = iter->node->next;
     free(iter->node);
-    iter->node = iter->node->prev->next;
+
     // subtract num_elements
     iter->list->num_elements--;
+
+    return true;
   }
 
 
