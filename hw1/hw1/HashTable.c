@@ -233,7 +233,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
     if (payloadPtr->key == key) {
       *keyPtr = *payloadPtr;
       if (remove) {
-        LLIteratorDelete(iter, NullFree);  // return payload and free it 
+        LLIteratorDelete(iter, LLNullFree);  // return payload and free it 
       }
 
       LLIteratorFree(iter);
