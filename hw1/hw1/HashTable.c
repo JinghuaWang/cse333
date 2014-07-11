@@ -279,7 +279,7 @@ int RemoveFromHashTable(HashTable table,
   int helper = HelperFunctionHashTable(chain, key, keyvalue, true);
 
   // key found
-  if (result == 1) {
+  if (helper == 1) {
     table->num_elements--;
   }
 
