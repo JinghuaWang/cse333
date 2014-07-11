@@ -376,60 +376,51 @@ int HTIteratorNext(HTIter iter) {
 
   uint32_t i;
 
-  if (LLIteratorNext(iter->bucket_it)) {
-    return 1; //succesffully advacned
-  } else {
-    //LLIteratorFree(iter->bucket_it); // done with that iterator 
-    for (i = iter->bucket_num+1 ; i < iter->ht->num_buckets; i++) {
-      iter->bucket_num = i;
-      if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
-        LLIteratorFree(iter->bucket_it); // done with that iterator 
-        iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
-        if (iter->bucket_it == NULL) {
-          return 0;
-        } else {
-          return 1; // successfully advacned 
-        }
-      }
-    }
-  }
-  iter->bucket_num++; // now it's pointing off the end, that's ok
-  iter->is_valid = false;
-  return 0;  // did not advance 
-  
   // if (LLIteratorNext(iter->bucket_it)) {
-  //   return 1;  // success
+  //   return 1; //succesffully advacned
   // } else {
-  //   LLIteratorFree(iter->bucket_it); // free iter
-  //   iter->bucket_it = NULL;  // defensive programming
-
-
-  //   for (i = iter->bucket_num + 1; i < iter->ht->num_buckets; i++) {
-
+  //   //LLIteratorFree(iter->bucket_it); // done with that iterator 
+  //   for (i = iter->bucket_num+1 ; i < iter->ht->num_buckets; i++) {
+  //     iter->bucket_num = i;
   //     if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
-        
-  //       iter->bucket_num = i;
-
-  //       // nonempty bucket found
+  //       LLIteratorFree(iter->bucket_it); // done with that iterator 
   //       iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
-
+  //       if (iter->bucket_it == NULL) {
+  //         return 0;
+  //       } else {
+  //         return 1; // successfully advacned 
+  //       }
   //     }
   //   }
-
-  //   if (i >= iter->ht->num_buckets) {
-  //     iter->is_valid = false;
-  //     return 0;
-  //   }
-
-  //   if (iter->bucket_it == NULL) {
-  //     return 0;
-  //   } else {
-  //     return 1;
-  //   }
   // }
+  // iter->bucket_num++; // now it's pointing off the end, that's ok
+  // iter->is_valid = false;
+  // return 0;  // did not advance 
+
+  if (LLIteratorNext(iter->bucket_it)) {
+    return 1;  // success
+  } else {
+    for (i = iter->bucket_num + 1; i < iter->ht->num_buckets; i++) {
+
+      iter->bucket_num = i;
+
+      if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
+        LLIteratorFree(iter->bucket_it);
+
+        // nonempty bucket found
+        iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
+      }
+    }
+
+    if (iter->bucket_it == NULL) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
 
 
-  // return 0;  // you might need to change this return value.
+  return 0;  // you might need to change this return value.
 }
 
 int HTIteratorPastEnd(HTIter iter) {
