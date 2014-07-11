@@ -161,15 +161,6 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
   // PushLinkedList, but obviously you need to add to the end
   // instead of the beginning.
 
-
-  if (list->num_elements == 0) {
-    // degenerate case; list is currently empty
-    Verify333(list->head == NULL);  // debugging aid
-    Verify333(list->tail == NULL);  // debugging aid    
-    return PushLinkedList(list, payload);
-  }
-
-
   // allocate space for the new node.
   LinkedListNodePtr ln =
     (LinkedListNodePtr) malloc(sizeof(LinkedListNode));
@@ -180,6 +171,16 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
 
   // Set the payload
   ln->payload = payload;
+
+  if (list->num_elements == 0) {
+    // degenerate case; list is currently empty
+    Verify333(list->head == NULL);  // debugging aid
+    Verify333(list->tail == NULL);  // debugging aid    
+    ln->next = ln->prev = NULL;
+    list->head = list->tail = ln;
+    list->num_elements++;
+    return true;
+  }
 
 
   // typical case; list has >=1 elements
@@ -209,26 +210,20 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     return false;
   } 
 
-  *payload_ptr = list->head->payload;
-
   // Single element case
   if (list->num_elements == 1) {
-    list->tail = NULL;
+    *payload_ptr = list->head->payload;
     free(list->head);
-    list->head = NULL;
+    list->head = list->tail = NULL;
     list->num_elements--;
-
-    return true;
   }
   // >=2 element case
   else {
+    *payload_ptr = list->tail->payload;
+    free(list->tail);
     list->tail = list->tail->prev;
     list->tail->next = NULL;
-    free(list->tail);
-    list->tail = NULL;
     list->num_elements--;
-
-    return true;
   }
 
   return true;
