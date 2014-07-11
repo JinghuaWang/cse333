@@ -195,6 +195,7 @@ int InsertHashTable(HashTable table,
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
 
   if (result == -1) {
+    free(newnodePtr);
     return 0; // return 0 on failure
   } else if (result == 1) {
     table->num_elements--;
@@ -202,6 +203,7 @@ int InsertHashTable(HashTable table,
 
   if (PushLinkedList(insertchain, newnodePtr)) {
     table->num_elements++;
+    free(newnodePtr);
     return result + 1;
   } else {
     free(newnodePtr);
