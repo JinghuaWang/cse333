@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "Assert333.h"
+#include "CSE333.h"
 #include "HashTable.h"
 #include "HashTable_priv.h"
 
@@ -30,12 +30,18 @@
 // the number of buckets) if its load factor has become too high.
 static void ResizeHashtable(HashTable ht);
 
-// a free function that does nothing
-static void NullFree(void *freeme) { }
 
-HashTable AllocateHashTable(uint32_t num_buckets) {
+// A private helper function as recommended in Part 1
+int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
+                              HTKeyValue *keyPtr, bool remove);
+
+// a free function that does nothing
+static void LLNullFree(LLPayload_t freeme) { }
+static void HTNullFree(HTValue_t freeme) { }
+
+HashTable AllocateHashTable(HWSize_t num_buckets) {
   HashTable ht;
-  uint32_t  i;
+  HWSize_t  i;
 
   // defensive programming
   if (num_buckets == 0) {
@@ -67,9 +73,9 @@ HashTable AllocateHashTable(uint32_t num_buckets) {
       // we know the chains are empty, we'll pass in a
       // free function pointer that does nothing; it should
       // never be called.
-      uint32_t j;
+      HWSize_t j;
       for (j = 0; j < i; j++) {
-        FreeLinkedList(ht->buckets[j], NullFree);
+        FreeLinkedList(ht->buckets[j], LLNullFree);
       }
       free(ht);
       return NULL;
@@ -81,9 +87,9 @@ HashTable AllocateHashTable(uint32_t num_buckets) {
 
 void FreeHashTable(HashTable table,
                    ValueFreeFnPtr value_free_function) {
-  uint32_t i;
+  HWSize_t i;
 
-  Assert333(table != NULL);  // be defensive
+  Verify333(table != NULL);  // be defensive
 
   // loop through and free the chains on each bucket
   for (i = 0; i < table->num_buckets; i++) {
@@ -92,13 +98,13 @@ void FreeHashTable(HashTable table,
 
     // pop elements off the the chain list, then free the list
     while (NumElementsInLinkedList(bl) > 0) {
-      Assert333(PopLinkedList(bl, (void **) &nextKV));
+      Verify333(PopLinkedList(bl, (LLPayload_t*)&nextKV));
       value_free_function(nextKV->value);
       free(nextKV);
     }
     // the chain list is empty, so we can pass in the
     // null free function to FreeLinkedList.
-    FreeLinkedList(bl, NullFree);
+    FreeLinkedList(bl, LLNullFree);
   }
 
   // free the bucket array within the table record,
@@ -107,12 +113,12 @@ void FreeHashTable(HashTable table,
   free(table);
 }
 
-uint64_t NumElementsInHashTable(HashTable table) {
-  Assert333(table != NULL);
+HWSize_t NumElementsInHashTable(HashTable table) {
+  Verify333(table != NULL);
   return table->num_elements;
 }
 
-uint64_t FNVHash64(unsigned char *buffer, unsigned int len) {
+HTKey_t FNVHash64(unsigned char *buffer, HWSize_t len) {
   // This code is adapted from code by Landon Curt Noll
   // and Bonelli Nicola:
   //
@@ -136,9 +142,10 @@ uint64_t FNVHash64(unsigned char *buffer, unsigned int len) {
   return hval;
 }
 
-uint64_t FNVHashInt64(uint64_t hashme) {
+HTKey_t FNVHashInt64(HTValue_t hashval) {
   unsigned char buf[8];
   int i;
+  uint64_t hashme = (uint64_t)hashval;
 
   for (i = 0; i < 8; i++) {
     buf[i] = (unsigned char) (hashme & 0x00000000000000FFULL);
@@ -147,42 +154,17 @@ uint64_t FNVHashInt64(uint64_t hashme) {
   return FNVHash64(buf, 8);
 }
 
-uint64_t HashKeyToBucketNum(HashTable ht, uint64_t key) {
+HWSize_t HashKeyToBucketNum(HashTable ht, HTKey_t key) {
   return key % ht->num_buckets;
-}
-
-int FindKey(LinkedList searchchain, uint64_t searchkey, HTKeyValue *returnparam, bool delete) {
-  if (NumElementsInLinkedList(searchchain) == 0) {
-    return 1; //no match
-  }
-  LLIter iter = LLMakeIterator(searchchain, 0);
-  if (iter == NULL) {
-    return 0; // memory error
-  }
-  do{ 
-    HTKeyValue *payload;
-    payload = NULL;
-    LLIteratorGetPayload(iter, (void *) &payload);
-    if (payload->key == searchkey) {
-      *returnparam = *payload;
-      if(delete) {
-        LLIteratorDelete(iter, free);
-      }
-      LLIteratorFree(iter);
-      return 2; //found match and put its value in the returnparam
-    }
-  } while (LLIteratorNext(iter));
-  LLIteratorFree(iter);
-  return 1; // no match
 }
 
 int InsertHashTable(HashTable table,
                     HTKeyValue newkeyvalue,
                     HTKeyValue *oldkeyvalue) {
-  uint32_t insertbucket;
+  HWSize_t insertbucket;
   LinkedList insertchain;
 
-  Assert333(table != NULL);
+  Verify333(table != NULL);
   ResizeHashtable(table);
 
   // calculate which bucket we're inserting into,
@@ -190,84 +172,131 @@ int InsertHashTable(HashTable table,
   insertbucket = HashKeyToBucketNum(table, newkeyvalue.key);
   insertchain = table->buckets[insertbucket];
 
-  // Make new node to insert 
-  HTKeyValue *newnodeptr = (HTKeyValue *) malloc(sizeof(HTKeyValue));
-  if(newnodeptr == NULL) {
-    return 0;
-  }
-  newnodeptr->key = newkeyvalue.key;
-  newnodeptr->value = newkeyvalue.value;
+  Verify333(insertchain != NULL);
 
   // Step 1 -- finish the implementation of InsertHashTable.
+  // This is a fairly complex task, so you might decide you want
+  // to define/implement a helper function that helps you find
+  // and optionally remove a key within a chain, rather than putting
+  // all that logic inside here.  You might also find that your helper
+  // can be reused in steps 2 and 3.
 
-  bool delete = true;
-  int findkeyresult = FindKey(insertchain, newkeyvalue.key, oldkeyvalue, delete);
-  if (findkeyresult == 0) {
-    return 0; // memory error 
-  }  else if (findkeyresult == 2) {
+  HTKeyValuePtr newnodePtr = (HTKeyValuePtr) malloc(sizeof(HTKeyValue));
+
+  // malloc check
+  if (newnodePtr == NULL) {
+    return 0;
+  }
+
+  // copy .key and .value
+  *newnodePtr = newkeyvalue;
+
+  // call our helper function (with remove set to TRUE)
+  int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
+
+  if (result == -1) {
+    // free(newnodePtr);
+
+    return 0; // return 0 on failure
+  } else if (result == 1) {
     table->num_elements--;
   }
-  //insert to front of list 
-  if (PushLinkedList(insertchain, newnodeptr)) {
+
+  if (PushLinkedList(insertchain, newnodePtr)) {
     table->num_elements++;
-    return findkeyresult; // represents if replaced or not 
+    return result + 1;
   } else {
-    free(newnodeptr);
-    return 0; //memory error   
+    free(newnodePtr);
+    return 0;
   }
+}
+
+int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
+                              HTKeyValue *keyPtr, bool remove) {
+  Verify333(keyPtr != NULL);
+
+  if (NumElementsInLinkedList(chain) == 0) {
+    return 0;  // if no match, return 0
+  }
+
+  LLIter iter = LLMakeIterator(chain, 0);
+
+  if (iter == NULL) {
+    return -1;  // if memory error, return 0
+  }
+
+  do {
+    HTKeyValue *payloadPtr;
+    payloadPtr = NULL;
+    LLIteratorGetPayload(iter, (void *) &payloadPtr);
+
+    if (payloadPtr->key == key) {
+      *keyPtr = *payloadPtr;
+
+      if (remove) {
+        LLIteratorDelete(iter, LLNullFree);
+      }
+
+      LLIteratorFree(iter);
+      iter = NULL;  // defensive programming
+      return 1;
+    } else {
+      LLIteratorGetPayload(iter, (void **) keyPtr);
+    }
+  } while (LLIteratorNext(iter));
+
+
+  LLIteratorFree(iter);
+  iter = NULL;  // defensive
+  return 0;  // no match
 }
 
 int LookupHashTable(HashTable table,
-                    uint64_t key,
+                    HTKey_t key,
                     HTKeyValue *keyvalue) {
-  Assert333(table != NULL);
+  Verify333(table != NULL);
+  Verify333(keyvalue != NULL);
 
   // Step 2 -- implement LookupHashTable.
 
-  // calculate which bucket we should look into
+  // calculate which bucket we're inserting into,
   // grab its linked list chain
-  uint32_t lookupbucket = HashKeyToBucketNum(table, key);
-  LinkedList lookupchain = table->buckets[lookupbucket];
+  HWSize_t bucket = HashKeyToBucketNum(table, key);
+  LinkedList chain = table->buckets[bucket];
 
-  bool delete = false; 
-  int findkeyresult = FindKey(lookupchain, key, keyvalue, delete);
-  if (findkeyresult == 0) {
-    return -1; //memory error
-  } else if (findkeyresult == 1) {
-    return 0; // not found, no match 
-  } else {
-    return 1; // key found, stored in keyvalue
-  }
+  int helper = HelperFunctionHashTable(chain, key, keyvalue, false);
+
+  return helper;  // you may need to change this return value.
 }
 
 int RemoveFromHashTable(HashTable table,
-                        uint64_t key,
+                        HTKey_t key,
                         HTKeyValue *keyvalue) {
-  Assert333(table != NULL);
-  // Step 3 -- impelment RemoveFromHashTable.
+  Verify333(table != NULL);
+  Verify333(keyvalue != NULL);
 
-  // calculate which bucket we should look into
+  // Step 3 -- implement RemoveFromHashTable.
+
+  // calculate which bucket we're inserting into,
   // grab its linked list chain
-  uint32_t lookupbucket = HashKeyToBucketNum(table, key);
-  LinkedList lookupchain = table->buckets[lookupbucket];
+  HWSize_t bucket = HashKeyToBucketNum(table, key);
+  LinkedList chain = table->buckets[bucket];
 
-  bool delete = true; 
-  int findkeyresult = FindKey(lookupchain, key, keyvalue, delete);
-  if (findkeyresult == 0) {
-    return -1; //memory error
-  } else if (findkeyresult == 1) {
-    return 0; // not found, no match 
-  } else {
+  int helper = HelperFunctionHashTable(chain, key, keyvalue, true);
+
+  // key found
+  if (helper == 1) {
     table->num_elements--;
-    return 1; // key found, stored in keyvalue
   }
+
+  return helper;  // you may need to change this return value.
 }
 
 HTIter HashTableMakeIterator(HashTable table) {
   HTIterRecord *iter;
-  uint32_t      i;
+  HWSize_t      i;
 
-  Assert333(table != NULL);  // be defensive
+  Verify333(table != NULL);  // be defensive
 
   // malloc the iterator
   iter = (HTIterRecord *) malloc(sizeof(HTIterRecord));
@@ -294,10 +323,10 @@ HTIter HashTableMakeIterator(HashTable table) {
       break;
     }
   }
-  Assert333(i < table->num_buckets);  // make sure we found it.
+  Verify333(i < table->num_buckets);  // make sure we found it.
   iter->bucket_it = LLMakeIterator(table->buckets[iter->bucket_num], 0UL);
   if (iter->bucket_it == NULL) {
-  // out of memory!
+    // out of memory!
     free(iter);
     return NULL;
   }
@@ -305,7 +334,7 @@ HTIter HashTableMakeIterator(HashTable table) {
 }
 
 void HTIteratorFree(HTIter iter) {
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
   if (iter->bucket_it != NULL) {
     LLIteratorFree(iter->bucket_it);
     iter->bucket_it = NULL;
@@ -315,65 +344,86 @@ void HTIteratorFree(HTIter iter) {
 }
 
 int HTIteratorNext(HTIter iter) {
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
 
   // Step 4 -- implement HTIteratorNext.
-  uint32_t      i;
+
+  uint32_t i;
 
   if (LLIteratorNext(iter->bucket_it)) {
-    return 1; //succesffully advacned
+    return 1;  // success
   } else {
-    //LLIteratorFree(iter->bucket_it); // done with that iterator 
-    for (i = iter->bucket_num+1 ; i < iter->ht->num_buckets; i++) {
+    for (i = iter->bucket_num + 1; i < iter->ht->num_buckets; i++) {
+
       iter->bucket_num = i;
+
       if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
-        LLIteratorFree(iter->bucket_it); // done with that iterator 
+        LLIteratorFree(iter->bucket_it);
+
+        // nonempty bucket
         iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
+
         if (iter->bucket_it == NULL) {
-          return 0;
+          return 0;  // iterator no longer usable
         } else {
-          return 1; // successfully advacned 
+          return 1;  // success
         }
       }
     }
   }
-  iter->bucket_num++; // now it's pointing off the end, that's ok
+
+  // point off the end
+  iter->bucket_num++;
+
+  // flip is_valid flag to false
   iter->is_valid = false;
-  return 0;  // did not advance 
+
+  return 0;  
 }
 
 int HTIteratorPastEnd(HTIter iter) {
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
 
   // Step 5 -- implement HTIteratorPastEnd.
-  if(iter->ht->num_elements < 1 || iter->bucket_num >= iter->ht->num_buckets) {
+  
+  // if table is empty, return 1
+  if (iter->ht->num_elements == 0) {
+    return 1;
+  }
+
+  // if test fails, flip is_valid flag and return 1, else return 0
+  if (iter->bucket_num >= iter->ht->num_buckets) {
     iter->is_valid = false;
-    return 1; //table empty 
+    return 1;
   } else {
     return 0;
   }
+
 }
 
 int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
+
   // Step 6 -- implement HTIteratorGet.
-  
-  if (!iter->is_valid || HTIteratorPastEnd(iter) == 1) {
-    return 0; // empty table or messed up iterator 
-  } else { 
-    HTKeyValue *payload;
-    payload = NULL;
-    LLIteratorGetPayload(iter->bucket_it, (void *) &payload);
-    *keyvalue = *payload;
-    return 1;
-  } 
+
+  HTKeyValue *payload = NULL;
+
+  // if empty or invalid, return 0
+  if (HTIteratorPastEnd(iter) == 1) {
+    return 0;
+  }
+
+  LLIteratorGetPayload(iter->bucket_it, (void *) &payload);
+  *keyvalue = *payload;
+
+  return 1;  // you might need to change this return value.
 }
 
 int HTIteratorDelete(HTIter iter, HTKeyValue *keyvalue) {
   HTKeyValue kv;
   int res, retval;
 
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
 
   // Try to get what the iterator is pointing to.
   res = HTIteratorGet(iter, &kv);
@@ -388,9 +438,9 @@ int HTIteratorDelete(HTIter iter, HTKeyValue *keyvalue) {
     retval = 1;
   }
   res = RemoveFromHashTable(iter->ht, kv.key, keyvalue);
-  Assert333(res == 1);
-  Assert333(kv.key == keyvalue->key);
-  Assert333(kv.value == keyvalue->value);
+  Verify333(res == 1);
+  Verify333(kv.key == keyvalue->key);
+  Verify333(kv.value == keyvalue->value);
 
   return retval;
 }
@@ -415,18 +465,18 @@ static void ResizeHashtable(HashTable ht) {
   HTIter it = HashTableMakeIterator(ht);
   if (it == NULL) {
     // Give up if out of memory.
-    FreeHashTable(newht, &NullFree);
+    FreeHashTable(newht, &HTNullFree);
     return;
   }
 
   while (!HTIteratorPastEnd(it)) {
     HTKeyValue item, dummy;
 
-    Assert333(HTIteratorGet(it, &item) == 1);
+    Verify333(HTIteratorGet(it, &item) == 1);
     if (InsertHashTable(newht, item, &dummy) != 1) {
       // failure, free up everything, return.
       HTIteratorFree(it);
-      FreeHashTable(newht, &NullFree);
+      FreeHashTable(newht, &HTNullFree);
       return;
     }
     HTIteratorNext(it);
@@ -443,7 +493,7 @@ static void ResizeHashtable(HashTable ht) {
     tmp = *ht;
     *ht = *newht;
     *newht = tmp;
-    FreeHashTable(newht, &NullFree);
+    FreeHashTable(newht, &HTNullFree);
   }
 
   return;
