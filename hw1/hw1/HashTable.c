@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "Assert333.h"
+#include "CSE333.h"
 #include "HashTable.h"
 #include "HashTable_priv.h"
 
@@ -83,7 +83,7 @@ void FreeHashTable(HashTable table,
                    ValueFreeFnPtr value_free_function) {
   uint32_t i;
 
-  Assert333(table != NULL);  // be defensive
+  Verify333(table != NULL);  // be defensive
 
   // loop through and free the chains on each bucket
   for (i = 0; i < table->num_buckets; i++) {
@@ -92,7 +92,7 @@ void FreeHashTable(HashTable table,
 
     // pop elements off the the chain list, then free the list
     while (NumElementsInLinkedList(bl) > 0) {
-      Assert333(PopLinkedList(bl, (void **) &nextKV));
+      Verify333(PopLinkedList(bl, (void **) &nextKV));
       value_free_function(nextKV->value);
       free(nextKV);
     }
@@ -108,7 +108,7 @@ void FreeHashTable(HashTable table,
 }
 
 uint64_t NumElementsInHashTable(HashTable table) {
-  Assert333(table != NULL);
+  Verify333(table != NULL);
   return table->num_elements;
 }
 
@@ -182,7 +182,7 @@ int InsertHashTable(HashTable table,
   uint32_t insertbucket;
   LinkedList insertchain;
 
-  Assert333(table != NULL);
+  Verify333(table != NULL);
   ResizeHashtable(table);
 
   // calculate which bucket we're inserting into,
@@ -220,7 +220,7 @@ int InsertHashTable(HashTable table,
 int LookupHashTable(HashTable table,
                     uint64_t key,
                     HTKeyValue *keyvalue) {
-  Assert333(table != NULL);
+  Verify333(table != NULL);
 
   // Step 2 -- implement LookupHashTable.
 
@@ -243,7 +243,7 @@ int LookupHashTable(HashTable table,
 int RemoveFromHashTable(HashTable table,
                         uint64_t key,
                         HTKeyValue *keyvalue) {
-  Assert333(table != NULL);
+  Verify333(table != NULL);
   // Step 3 -- impelment RemoveFromHashTable.
 
   // calculate which bucket we should look into
@@ -267,7 +267,7 @@ HTIter HashTableMakeIterator(HashTable table) {
   HTIterRecord *iter;
   uint32_t      i;
 
-  Assert333(table != NULL);  // be defensive
+  Verify333(table != NULL);  // be defensive
 
   // malloc the iterator
   iter = (HTIterRecord *) malloc(sizeof(HTIterRecord));
@@ -294,7 +294,7 @@ HTIter HashTableMakeIterator(HashTable table) {
       break;
     }
   }
-  Assert333(i < table->num_buckets);  // make sure we found it.
+  Verify333(i < table->num_buckets);  // make sure we found it.
   iter->bucket_it = LLMakeIterator(table->buckets[iter->bucket_num], 0UL);
   if (iter->bucket_it == NULL) {
   // out of memory!
@@ -305,7 +305,7 @@ HTIter HashTableMakeIterator(HashTable table) {
 }
 
 void HTIteratorFree(HTIter iter) {
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
   if (iter->bucket_it != NULL) {
     LLIteratorFree(iter->bucket_it);
     iter->bucket_it = NULL;
@@ -315,7 +315,7 @@ void HTIteratorFree(HTIter iter) {
 }
 
 int HTIteratorNext(HTIter iter) {
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
 
   // Step 4 -- implement HTIteratorNext.
   uint32_t      i;
@@ -343,7 +343,7 @@ int HTIteratorNext(HTIter iter) {
 }
 
 int HTIteratorPastEnd(HTIter iter) {
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
 
   // Step 5 -- implement HTIteratorPastEnd.
   if(iter->ht->num_elements < 1 || iter->bucket_num >= iter->ht->num_buckets) {
@@ -355,7 +355,7 @@ int HTIteratorPastEnd(HTIter iter) {
 }
 
 int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
   // Step 6 -- implement HTIteratorGet.
   
   if (!iter->is_valid || HTIteratorPastEnd(iter) == 1) {
@@ -373,7 +373,7 @@ int HTIteratorDelete(HTIter iter, HTKeyValue *keyvalue) {
   HTKeyValue kv;
   int res, retval;
 
-  Assert333(iter != NULL);
+  Verify333(iter != NULL);
 
   // Try to get what the iterator is pointing to.
   res = HTIteratorGet(iter, &kv);
@@ -388,9 +388,9 @@ int HTIteratorDelete(HTIter iter, HTKeyValue *keyvalue) {
     retval = 1;
   }
   res = RemoveFromHashTable(iter->ht, kv.key, keyvalue);
-  Assert333(res == 1);
-  Assert333(kv.key == keyvalue->key);
-  Assert333(kv.value == keyvalue->value);
+  Verify333(res == 1);
+  Verify333(kv.key == keyvalue->key);
+  Verify333(kv.value == keyvalue->value);
 
   return retval;
 }
@@ -422,7 +422,7 @@ static void ResizeHashtable(HashTable ht) {
   while (!HTIteratorPastEnd(it)) {
     HTKeyValue item, dummy;
 
-    Assert333(HTIteratorGet(it, &item) == 1);
+    Verify333(HTIteratorGet(it, &item) == 1);
     if (InsertHashTable(newht, item, &dummy) != 1) {
       // failure, free up everything, return.
       HTIteratorFree(it);
