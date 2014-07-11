@@ -88,7 +88,7 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
   if (list->num_elements == 0) {
     // degenerate case; list is currently empty
     Verify333(list->head == NULL);  // debugging aid
-    Verify333(list->tail == NULL);  // debugging aid
+    Verify333(list->tail == NULL);  // debugging aid    
     ln->next = ln->prev = NULL;
     list->head = list->tail = ln;
     list->num_elements++;
@@ -100,9 +100,9 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
   if (list->num_elements >= 1) {
     Verify333(list->head != NULL);
     Verify333(list->tail != NULL);
-    ln->next = list->head;
-    ln->prev = NULL;
     list->head->prev = ln;
+    ln->prev = NULL;
+    ln->next = list->head;
     list->num_elements++;
     list->head = ln;
 
@@ -184,9 +184,9 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
   if (list->num_elements >= 1) {
     Verify333(list->head != NULL);
     Verify333(list->tail != NULL);
-    ln->next = NULL;
-    ln->prev = list->tail;    
     list->tail->next = ln;
+    ln->next = NULL;
+    ln->prev = list->tail;
     list->tail = ln;
     list->num_elements++;
 
