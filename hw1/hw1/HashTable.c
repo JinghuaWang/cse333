@@ -205,7 +205,7 @@ int InsertHashTable(HashTable table,
     table->num_elements++;
     return result + 1;
   } else {
-    free(newnode);
+    free(newnodePtr);
     return 0;
   }
 
