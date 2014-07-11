@@ -403,9 +403,9 @@ bool LLIteratorDelete(LLIter iter,
   // degenerate case: the list becomes empty after deleting
   else if (iter->list->num_elements == 1) {
     payload_free_function(iter->list->head->payload);
+    iter->list->num_elements--;
     free(iter->list->head);
     iter->list->head = iter->list->tail = iter->node = NULL;
-    iter->list->num_elements--;
     return false;
   }
   // degenerate case: iter points at head
