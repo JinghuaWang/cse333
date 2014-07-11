@@ -34,9 +34,9 @@ LinkedList AllocateLinkedList(void) {
 
   // Step 1.
   // initialize the newly allocated record structure
-  ll->num_elements = 0;
   ll->head = NULL;
   ll->tail = NULL;
+  ll->num_elements = 0;
 
   // return our newly minted linked list
   return ll;
@@ -52,17 +52,10 @@ void FreeLinkedList(LinkedList list,
   // sweep through the list and free all of the nodes' payloads as
   // well as the nodes themselves
   while (list->head != NULL) {
-    // shift to next
-    list->head = list->head->next;    
-
-    // free payload
-    payload_free_function(list->head->payload);
-
-    // free node
-    free(list->head);
-
-    // subtract the number of elements by 1
-    list->num_elements--;
+    LinkedListNodePtr headnode = list->head;
+    list->head = headnode->next;
+    payload_free_function(headnode->payload);
+    free(headnode);
   }
 
   // free the list record
@@ -105,11 +98,13 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
   // STEP 3.
   // typical case; list has >=1 elements
   if (list->num_elements >= 1) {
-    list->head->prev = ln;
+    Verify333(list->head != NULL);
+    Verify333(list->tail != NULL);
     ln->next = list->head;
     ln->prev = NULL;
-    list->head = ln;
+    list->head->prev = ln;
     list->num_elements++;
+    list->head = ln;
 
     return true;
   }
@@ -134,22 +129,26 @@ bool PopLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
   if (list->num_elements == 0) {
     return false;
   } 
+
+  *payload_ptr = list->head->payload;
+
   // Single element case
-  else if (list->num_elements == 1) {
-    *payload_ptr = list->head->payload;
+  if (list->num_elements == 1) {
     list->tail = NULL;
     free(list->head);
     list->head = NULL;
     list->num_elements--;
+    return true;
   }
   // >=2 element case
-  else {
-    *payload_ptr = list->head->payload;
-    list->head = list->head->next;
+  else if (list->num_elements >= 2) {
+    LinkedListNodePtr headnode = list->head;
+    list->head = headnode->next;
     list->head->prev = NULL;
-    free(list->head);
-    list->head = NULL;
+    free(headnode);
+    headnode = NULL;
     list->num_elements--;
+    return true;
   }
   return true;
 }
