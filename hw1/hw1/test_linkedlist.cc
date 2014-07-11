@@ -308,6 +308,7 @@ TEST_F(Test_LinkedList, TestLLIteratorBasic) {
 
   // The list contains 5 elements. Try a delete from the front of the list.
   // (i.e., delete element 1/5.)
+  printf("\n\nnum here = %d\n\n", NumElementsInLinkedList(lli->list));
   free_count = 0;
   LinkedListNodePtr prev, next = lli->node->next;
   ASSERT_TRUE(LLIteratorDelete(lli, &LLPayloadFreeFunction));
