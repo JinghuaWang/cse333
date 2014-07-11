@@ -255,6 +255,40 @@ int HTIteratorNext(HTIter iter) {
 
   // Step 4 -- implement HTIteratorNext.
 
+  uint32_t i;
+
+  if (LLIteratorNext(iter->bucket_it)) {
+    return 1;  // success
+  } else {
+    LLIteratorFree(iter->bucket_it); // free iter
+    iter->bucket_it = NULL;  // defensive programming
+
+
+    for (i = iter->bucket_num + 1; i < iter->ht->num_buckets; i++) {
+
+      if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
+        
+        iter->bucket_num = i;
+
+        // nonempty bucket found
+        iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
+
+        break;
+      }
+    }
+
+    if (i >= iter->ht->num_buckets) {
+      iter->is_valid = false;
+      return 0;
+    }
+
+    if (iter->bucket_it == NULL) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
 
   return 0;  // you might need to change this return value.
 }
@@ -263,9 +297,19 @@ int HTIteratorPastEnd(HTIter iter) {
   Verify333(iter != NULL);
 
   // Step 5 -- implement HTIteratorPastEnd.
+  
+  // if table is empty, return 1
+  if (iter->ht->num_elements == 0) {
+    return 1;
+  }
 
+  // if valid return 0, else return 1
+  if (iter->is_valid) {
+    return 0;
+  } else {
+    return 1;
+  }
 
-  return 0;  // you might need to change this return value.
 }
 
 int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
@@ -273,8 +317,19 @@ int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
 
   // Step 6 -- implement HTIteratorGet.
 
+  HTKeyValue *payload;
 
-  return 0;  // you might need to change this return value.
+  // if empty or invalid, return 0
+  if (HTIteratorPastEnd(iter) == 1) {
+    return 0;
+  }
+
+  payload = NULL;
+  LLIteratorGetPayload(iter->bucket_it, (void *) &payload);
+  *keyvalue = *payload;
+
+
+  return 1;  // you might need to change this return value.
 }
 
 int HTIteratorDelete(HTIter iter, HTKeyValue *keyvalue) {
