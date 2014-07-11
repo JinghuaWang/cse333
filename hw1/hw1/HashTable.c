@@ -196,6 +196,7 @@ int InsertHashTable(HashTable table,
 
   if (result == -1) {
     free(newnodePtr);
+    newnodePtr = NULL;
     return 0; // return 0 on failure
   } else if (result == 1) {
     table->num_elements--;
@@ -204,9 +205,11 @@ int InsertHashTable(HashTable table,
   if (PushLinkedList(insertchain, newnodePtr)) {
     table->num_elements++;
     free(newnodePtr);
+    newnodePtr = NULL;
     return result + 1;
   } else {
     free(newnodePtr);
+    newnodePtr = NULL;
     return 0;
   }
 
