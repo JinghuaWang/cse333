@@ -98,8 +98,8 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
   // STEP 3.
   // typical case; list has >=1 elements
   if (list->num_elements >= 1) {
-    // Verify333(list->head != NULL);
-    // Verify333(list->tail != NULL);
+    Verify333(list->head != NULL);
+    Verify333(list->tail != NULL);
     ln->next = list->head;
     ln->prev = NULL;
     list->head->prev = ln;
@@ -182,6 +182,8 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
 
   // typical case; list has >=1 elements
   if (list->num_elements >= 1) {
+    Verify333(list->head != NULL);
+    Verify333(list->tail != NULL);
     ln->next = NULL;
     ln->prev = list->tail;    
     list->tail->next = ln;
