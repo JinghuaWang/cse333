@@ -30,6 +30,11 @@
 // the number of buckets) if its load factor has become too high.
 static void ResizeHashtable(HashTable ht);
 
+
+// A private helper function as recommended in Part 1
+int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
+                              HTKeyValue *keyPtr, bool remove);
+
 // a free function that does nothing
 static void LLNullFree(LLPayload_t freeme) { }
 static void HTNullFree(HTValue_t freeme) { }
@@ -174,8 +179,68 @@ int InsertHashTable(HashTable table,
   // all that logic inside here.  You might also find that your helper
   // can be reused in steps 2 and 3.
 
+  HTKeyValue *newnode = (HTKeyValue *) malloc(sizeof(HTKeyValue));
 
-  return 0;  // You may need to change this return value.
+  // malloc check
+  if (newnode == NULL) {
+    return 0;
+  }
+
+  newnode->value = newkeyvalue.value;
+  newnode->key = newkeyvalue.key;
+
+  // call our helper function (with remove set to TRUE)
+  int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
+
+  if (result == -1) {
+    free(newnode);
+    return 0; // return 0 on failure
+  }
+
+  if (PushLinkedList(chain, newnode)) {
+    table->num_elements++;
+    return result + 1;
+  } else {
+    free(newnode);
+    return 0;
+  }
+
+  // return 0;  // You may need to change this return value.
+}
+
+int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
+                              HTKeyValue *keyPtr, bool remove) {
+  Verify333(keyPtr != NULL);
+
+  if (NumElementsInLinkedList(chain) == 0) {
+    return 1;  // if no match, return 1
+  }
+
+  LLIter iter = LLMakeIterator(chain, 0);
+
+  if (iter == NULL) {
+    return -1;  // if memory error, return 0
+  }
+
+  do {
+    HTKeyValue *payloadPtr = NULL;
+    LLIteratorGetPayload(iter, (void *) &payloadPtr);
+
+    if (payloadPtr->key == key) {
+      *keyPtr = *payloadPtr;
+      if (remove) {
+        LLIteratorDelete(iter, free);  // return payload and free it
+        table->num_elements--; 
+      }
+
+      LLIteratorFree(iter);
+      return 1;  // oldkey was replaced with newkey, return +2
+    }
+  } while (LLIteratorNext(iter));
+
+  LLIteratorFree(iter);
+
+  return 0;  // no key match in table, return 1
 }
 
 int LookupHashTable(HashTable table,
@@ -185,8 +250,14 @@ int LookupHashTable(HashTable table,
 
   // Step 2 -- implement LookupHashTable.
 
+  // calculate which bucket we're inserting into,
+  // grab its linked list chain
+  insertbucket = HashKeyToBucketNum(table, newkeyvalue.key);
+  chain = table->buckets[insertbucket];
 
-  return 0;  // you may need to change this return value.
+  int helper = HelperFunctionHashTable(chain, key, keyvalue, false);
+
+  return helper;  // you may need to change this return value.
 }
 
 int RemoveFromHashTable(HashTable table,
@@ -196,7 +267,14 @@ int RemoveFromHashTable(HashTable table,
 
   // Step 3 -- implement RemoveFromHashTable.
 
-  return 0;  // you may need to change this return value.
+  // calculate which bucket we're inserting into,
+  // grab its linked list chain
+  insertbucket = HashKeyToBucketNum(table, newkeyvalue.key);
+  chain = table->buckets[insertbucket];
+
+  int helper = HelperFunctionHashTable(chain, key, keyvalue, true);
+
+  return helper;  // you may need to change this return value.
 }
 
 HTIter HashTableMakeIterator(HashTable table) {
