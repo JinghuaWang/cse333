@@ -88,7 +88,7 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
   if (list->num_elements == 0) {
     // degenerate case; list is currently empty
     Verify333(list->head == NULL);  // debugging aid
-    Verify333(list->tail == NULL);  // debugging aid    
+    Verify333(list->tail == NULL);  // debugging aid
     ln->next = ln->prev = NULL;
     list->head = list->tail = ln;
     list->num_elements++;
@@ -128,7 +128,7 @@ bool PopLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
   // Test for empty list
   if (list->num_elements == 0) {
     return false;
-  } 
+  }
 
   *payload_ptr = list->head->payload;
 
@@ -137,9 +137,8 @@ bool PopLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     list->tail = NULL;
     free(list->head);
     list->head = NULL;
-  }
-  // >=2 element case
-  else if (list->num_elements >= 2) {
+  } else if (list->num_elements >= 2) {
+    // >=2 element case
     LinkedListNodePtr headnode = list->head;
     list->head = headnode->next;
     list->head->prev = NULL;
@@ -172,7 +171,7 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
   if (list->num_elements == 0) {
     // degenerate case; list is currently empty
     Verify333(list->head == NULL);  // debugging aid
-    Verify333(list->tail == NULL);  // debugging aid    
+    Verify333(list->tail == NULL);  // debugging aid
     ln->next = ln->prev = NULL;
     list->head = list->tail = ln;
     list->num_elements++;
@@ -207,7 +206,7 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
   // Test for empty list
   if (list->num_elements == 0) {
     return false;
-  } 
+  }
 
   // Single element case
   if (list->num_elements == 1) {
@@ -215,9 +214,8 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     free(list->head);
     list->head = list->tail = NULL;
     list->num_elements--;
-  }
-  // >=2 element case
-  else {
+  } else {
+    // >=2 element case
     *payload_ptr = list->tail->payload;
     LinkedListNodePtr holdnode = list->tail->prev;
     free(list->tail);
@@ -397,48 +395,41 @@ bool LLIteratorDelete(LLIter iter,
   // degenerate case: empty list.
   if (iter->list->num_elements < 1) {
     return false;
-  }
-  // degenerate case: the list becomes empty after deleting
-  else if (iter->list->num_elements == 1) {
+  } else if (iter->list->num_elements == 1) {
+    // degenerate case: the list becomes empty after deleting
     payload_free_function(iter->list->head->payload);
     free(iter->list->head);
-    
+
     iter->list->head = NULL;
     iter->list->tail = NULL;
     iter->node = NULL;
 
     iter->list->num_elements--;
     return false;
-  }
-  // degenerate case: iter points at head
-  else if (iter->node == iter->list->head) {
+  } else if (iter->node == iter->list->head) {
+    // degenerate case: iter points at head
     LinkedListNodePtr nextnode = iter->node->next;
     payload_free_function(iter->node->payload);
     free(iter->list->head);
     iter->list->head = nextnode;
     iter->node = iter->list->head;
     iter->node->prev = NULL;
-
-  }
-  // degenerate case: iter points at tail
-  else if (iter->node == iter->list->tail) {
+  } else if (iter->node == iter->list->tail) {
+    // degenerate case: iter points at tail
     LinkedListNodePtr prevnode = iter->node->prev;
     payload_free_function(iter->node->payload);
     free(iter->list->tail);
     iter->list->tail = prevnode;
     iter->node = iter->list->tail;
     iter->node->next = NULL;
-  }
+  } else {
   // fully general case: iter points in the middle of a list,
-  //                       and you have to "splice".
-  else {
     LinkedListNodePtr nextnode = iter->node->next;
     payload_free_function(iter->node->payload);
     iter->node->prev->next = nextnode;
     nextnode->prev = iter->node->prev;
     free(iter->node);
     iter->node = nextnode;
-
   }
 
   // subtract num_elements

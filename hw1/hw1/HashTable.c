@@ -32,7 +32,7 @@ static void ResizeHashtable(HashTable ht);
 
 
 // A private helper function as recommended in Part 1
-int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
+int HelperFunctionHashTable(LinkedList chain, uint64_t key,
                               HTKeyValue *keyPtr, bool remove);
 
 // a free function that does nothing
@@ -192,12 +192,13 @@ int InsertHashTable(HashTable table,
   *newnodePtr = newkeyvalue;
 
   // call our helper function (with remove set to TRUE)
-  int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
+  int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, 
+                                          oldkeyvalue, true);
 
   if (result == -1) {
     // free(newnodePtr);
 
-    return 0; // return 0 on failure
+    return 0;  // return 0 on failure
   } else if (result == 1) {
     table->num_elements--;
   }
@@ -211,7 +212,7 @@ int InsertHashTable(HashTable table,
   }
 }
 
-int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
+int HelperFunctionHashTable(LinkedList chain, uint64_t key,
                               HTKeyValue *keyPtr, bool remove) {
   Verify333(keyPtr != NULL);
 
@@ -355,14 +356,14 @@ int HTIteratorNext(HTIter iter) {
     return 1;  // success
   } else {
     for (i = iter->bucket_num + 1; i < iter->ht->num_buckets; i++) {
-
       iter->bucket_num = i;
 
       if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
         LLIteratorFree(iter->bucket_it);
 
         // nonempty bucket
-        iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
+        iter->bucket_it = LLMakeIterator(
+                          iter->ht->buckets[iter->bucket_num], 0UL);
 
         if (iter->bucket_it == NULL) {
           return 0;  // iterator no longer usable
@@ -379,14 +380,14 @@ int HTIteratorNext(HTIter iter) {
   // flip is_valid flag to false
   iter->is_valid = false;
 
-  return 0;  
+  return 0;
 }
 
 int HTIteratorPastEnd(HTIter iter) {
   Verify333(iter != NULL);
 
   // Step 5 -- implement HTIteratorPastEnd.
-  
+
   // if table is empty, return 1
   if (iter->ht->num_elements == 0) {
     return 1;
@@ -399,7 +400,6 @@ int HTIteratorPastEnd(HTIter iter) {
   } else {
     return 0;
   }
-
 }
 
 int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
