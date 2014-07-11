@@ -394,6 +394,7 @@ bool LLIteratorDelete(LLIter iter,
   // the iterator is pointing to, and also free any LinkedList
   // data structure element as appropriate.
 
+  printf("\nNUM ELEMENTS EARLY = %d\n", iter->list->num_elements);
 
   // free node payload (needed in all cases)
   payload_free_function(iter->node->payload);
