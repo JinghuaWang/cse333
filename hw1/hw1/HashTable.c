@@ -404,14 +404,14 @@ int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
 
   // Step 6 -- implement HTIteratorGet.
 
-  HTKeyValue *payload;
+  HTKeyValue *payload = NULL;
 
   // if empty or invalid, return 0
-  if (!iter->is_valid) {
+  if (HTIteratorPastEnd(iter) == 1) {
     return 0;
   }
 
-  LLIteratorGetPayload(iter->bucket_it, (void **) &payload);
+  LLIteratorGetPayload(iter->bucket_it, (void *) &payload);
   *keyvalue = *payload;
 
   return 1;  // you might need to change this return value.
