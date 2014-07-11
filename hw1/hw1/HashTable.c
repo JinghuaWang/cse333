@@ -229,7 +229,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   HTKeyValue *payloadPtr;
   payloadPtr = NULL;
 
-  LLIteratorGetPayload(iter, (void *) &payloadPtr);
+  LLIteratorGetPayload(iter, (void **) &payloadPtr);
   while (LLIteratorNext(iter)) {
     if (payloadPtr->key == key) {
       *keyPtr = *payloadPtr;
@@ -242,7 +242,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
       iter = NULL;  // defensive programming
       return 1;
     } else {
-      LLIteratorGetPayload(iter, (void *) keyPtr);
+      LLIteratorGetPayload(iter, (void **) keyPtr);
     }
   }
 
@@ -279,6 +279,7 @@ int LookupHashTable(HashTable table,
                     HTKey_t key,
                     HTKeyValue *keyvalue) {
   Verify333(table != NULL);
+  Verify333(keyvalue != NULL);
 
   // Step 2 -- implement LookupHashTable.
 
