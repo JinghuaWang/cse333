@@ -31,7 +31,11 @@
 static void ResizeHashtable(HashTable ht);
 
 
-// A private helper function as recommended in Part 1
+// A private helper function as recommended in Part 1.
+// Return values:
+//        -1 : error
+//         0 : key not found
+//        +1 : key found
 int HelperFunctionHashTable(LinkedList chain, uint64_t key,
                               HTKeyValue *keyPtr, bool remove);
 
@@ -192,12 +196,10 @@ int InsertHashTable(HashTable table,
   *newnodePtr = newkeyvalue;
 
   // call our helper function (with remove set to TRUE)
-  int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, 
+  int result = HelperFunctionHashTable(insertchain, newkeyvalue.key,
                                           oldkeyvalue, true);
 
   if (result == -1) {
-    // free(newnodePtr);
-
     return 0;  // return 0 on failure
   } else if (result == 1) {
     table->num_elements--;
@@ -205,8 +207,8 @@ int InsertHashTable(HashTable table,
 
   if (PushLinkedList(insertchain, newnodePtr)) {
     table->num_elements++;
-    return result + 1;
-  } else {
+    return result + 1;  // increment +1 to satisfy header definition
+  } else {  // if Push fails, free node and return failure
     free(newnodePtr);
     return 0;
   }
@@ -223,7 +225,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   LLIter iter = LLMakeIterator(chain, 0);
 
   if (iter == NULL) {
-    return -1;  // if memory error, return 0
+    return -1;  // if memory error, return -1
   }
 
   do {
@@ -266,6 +268,7 @@ int LookupHashTable(HashTable table,
   HWSize_t bucket = HashKeyToBucketNum(table, key);
   LinkedList chain = table->buckets[bucket];
 
+  // Reuse our HelperFunction here
   int helper = HelperFunctionHashTable(chain, key, keyvalue, false);
 
   return helper;  // you may need to change this return value.
@@ -284,6 +287,7 @@ int RemoveFromHashTable(HashTable table,
   HWSize_t bucket = HashKeyToBucketNum(table, key);
   LinkedList chain = table->buckets[bucket];
 
+  // Reuse our HelperFunction here
   int helper = HelperFunctionHashTable(chain, key, keyvalue, true);
 
   // key found

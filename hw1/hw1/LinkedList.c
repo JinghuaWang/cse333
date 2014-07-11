@@ -54,8 +54,8 @@ void FreeLinkedList(LinkedList list,
   while (list->head != NULL) {
     LinkedListNodePtr headnode = list->head;
     list->head = headnode->next;
-    payload_free_function(headnode->payload);
-    free(headnode);
+    payload_free_function(headnode->payload);  // free payload
+    free(headnode);  // free node
   }
 
   // free the list record
@@ -181,8 +181,8 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
 
   // typical case; list has >=1 elements
   if (list->num_elements >= 1) {
-    Verify333(list->head != NULL);
-    Verify333(list->tail != NULL);
+    Verify333(list->head != NULL);  // debugging aid
+    Verify333(list->tail != NULL);  // debugging aid
     list->tail->next = ln;
     ln->next = NULL;
     ln->prev = list->tail;
@@ -224,7 +224,7 @@ bool SliceLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     list->num_elements--;
   }
 
-  return true;
+  return true;  // return success
 }
 
 void SortLinkedList(LinkedList list, unsigned int ascending,
