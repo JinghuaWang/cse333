@@ -195,6 +195,8 @@ int InsertHashTable(HashTable table,
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
 
   if (result == -1) {
+        free(newnodePtr);
+
     return 0; // return 0 on failure
   } else if (result == 1) {
     table->num_elements--;
@@ -202,6 +204,7 @@ int InsertHashTable(HashTable table,
 
   if (PushLinkedList(insertchain, newnodePtr)) {
     table->num_elements++;
+        free(newnodePtr);
     return result + 1;
   } else {
     free(newnodePtr);
@@ -261,7 +264,7 @@ int LookupHashTable(HashTable table,
 
   // calculate which bucket we're inserting into,
   // grab its linked list chain
-  uint32_t bucket = HashKeyToBucketNum(table, key);
+  HWSize_t bucket = HashKeyToBucketNum(table, key);
   LinkedList chain = table->buckets[bucket];
 
   int helper = HelperFunctionHashTable(chain, key, keyvalue, false);
@@ -279,7 +282,7 @@ int RemoveFromHashTable(HashTable table,
 
   // calculate which bucket we're inserting into,
   // grab its linked list chain
-  uint32_t bucket = HashKeyToBucketNum(table, key);
+  HWSize_t bucket = HashKeyToBucketNum(table, key);
   LinkedList chain = table->buckets[bucket];
 
   int helper = HelperFunctionHashTable(chain, key, keyvalue, true);
