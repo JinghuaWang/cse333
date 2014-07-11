@@ -228,11 +228,11 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
     return -1;  // if memory error, return 0
   }
 
-  HTKeyValue *payloadPtr;
-  payloadPtr = NULL;
-
-  LLIteratorGetPayload(iter, (void **) &payloadPtr);
+  LLIteratorGetPayload(iter, (void *) &payloadPtr);
   do {
+    HTKeyValue *payloadPtr;
+    payloadPtr = NULL;
+
     if (payloadPtr->key == key) {
       *keyPtr = *payloadPtr;
 
