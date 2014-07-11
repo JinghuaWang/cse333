@@ -194,6 +194,8 @@ int InsertHashTable(HashTable table,
   // call our helper function (with remove set to TRUE)
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
 
+  printf("\nRESULT HERE = %d\n\n", result);
+
   if (result == -1) {
     free(newnodePtr);
     return 0; // return 0 on failure
