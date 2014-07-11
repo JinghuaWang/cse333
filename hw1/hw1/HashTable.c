@@ -172,6 +172,8 @@ int InsertHashTable(HashTable table,
   insertbucket = HashKeyToBucketNum(table, newkeyvalue.key);
   insertchain = table->buckets[insertbucket];
 
+  Verify333(insertchain != NULL);
+
   // Step 1 -- finish the implementation of InsertHashTable.
   // This is a fairly complex task, so you might decide you want
   // to define/implement a helper function that helps you find
@@ -199,7 +201,7 @@ int InsertHashTable(HashTable table,
     table->num_elements--;
   }
 
-  if (PushLinkedList(insertchain, newnode)) {
+  if (AppendinkedList(insertchain, newnode)) {
     table->num_elements++;
     return result + 1;
   } else {
