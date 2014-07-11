@@ -191,6 +191,7 @@ int InsertHashTable(HashTable table,
 
   // call our helper function (with remove set to TRUE)
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
+  printf("%d\n", result);
 
   if (result == -1) {
     free(newnode);
@@ -199,7 +200,7 @@ int InsertHashTable(HashTable table,
     table->num_elements--;
   }
 
-  if (AppendLinkedList(insertchain, newnode)) {
+  if (PushLinkedList(insertchain, newnode)) {
     table->num_elements++;
     return result + 1;
   } else {
@@ -215,7 +216,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   Verify333(keyPtr != NULL);
 
   if (NumElementsInLinkedList(chain) == 0) {
-    return 0;  // if no match, return 0
+    return 1;  // if no match, return 1
   }
 
   LLIter iter = LLMakeIterator(chain, 0);
