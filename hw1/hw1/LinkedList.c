@@ -402,11 +402,10 @@ bool LLIteratorDelete(LLIter iter,
   }
   // degenerate case: the list becomes empty after deleting
   else if (iter->list->num_elements == 1) {
-    LinkedListNodePtr listnode = iter->list;
-    payload_free_function(listnode->head->payload);
-    free(listnode->head);
-    listnode->head = listnode->tail = listnode = NULL;
-    iter->list->num_elements = 0;
+    payload_free_function(iter->list->head->payload);
+    free(iter->list->head);
+    iter->list->head = iter->list->tail = iter->node = NULL;
+    iter->list->num_elements--;
     return false;
   }
   // degenerate case: iter points at head
