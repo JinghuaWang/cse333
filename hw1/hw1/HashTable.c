@@ -188,7 +188,7 @@ int InsertHashTable(HashTable table,
     return 0;
   }
 
-  newnode = newkeyvalue;
+  *newnode = newkeyvalue;
 
   // call our helper function (with remove set to TRUE)
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
