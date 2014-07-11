@@ -407,7 +407,7 @@ int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
   HTKeyValue *payload;
 
   // if empty or invalid, return 0
-  if (HTIteratorPastEnd(iter) == 1) {
+  if (!iter->is_valid) {
     return 0;
   }
 
