@@ -33,7 +33,7 @@ static void ResizeHashtable(HashTable ht);
 
 // A private helper function as recommended in Part 1
 int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
-                              HTKeyValue **keyPtr, bool remove);
+                              HTKeyValue *keyPtr, bool remove);
 
 // a free function that does nothing
 static void LLNullFree(LLPayload_t freeme) { }
@@ -213,7 +213,7 @@ int InsertHashTable(HashTable table,
 }
 
 int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
-                              HTKeyValue **keyPtr, bool remove) {
+                              HTKeyValue *keyPtr, bool remove) {
   Verify333(keyPtr != NULL);
 
   if (NumElementsInLinkedList(chain) == 0) {
@@ -227,19 +227,19 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   }
 
 
-  LLIteratorGetPayload(iter, (void **) keyPtr);
+  LLIteratorGetPayload(iter, (void *) keyPtr);
   while ((*keyPtr)->key == key) {
     if (!LLIteratorNext(iter)) {
       LLIteratorFree(iter);
       iter = NULL;  // defensive programming
       return 0;
     } else {
-      LLIteratorGetPayload(iter, (void **) keyPtr);
+      LLIteratorGetPayload(iter, (void *) keyPtr);
     }
   }
 
   if (remove) {
-    LLIteratorDelete(iter, NullFree);
+    LLIteratorDelete(iter, LLNullFree);
   }
   
 
