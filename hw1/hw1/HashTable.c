@@ -194,8 +194,6 @@ int InsertHashTable(HashTable table,
   // call our helper function (with remove set to TRUE)
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
 
-  printf("\nRESULT HERE = %d\n\n", result);
-
   if (result == -1) {
     free(newnodePtr);
     return 0; // return 0 on failure
@@ -249,32 +247,9 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   } while (LLIteratorNext(iter));
 
 
-  
-
   LLIteratorFree(iter);
   iter = NULL;  // defensive
   return 0;  // no match
-
-  // do {
-  //   HTKeyValue *payloadPtr;
-  //   payloadPtr = NULL;
-  //   LLIteratorGetPayload(iter, (void *) &payloadPtr);
-
-  //   if (payloadPtr->key == key) {
-  //     *keyPtr = *payloadPtr;
-  //     if (remove) {
-  //       free(payloadPtr);
-  //       LLIteratorDelete(iter, free);  // return payload and free it 
-  //     }
-
-  //     LLIteratorFree(iter);
-  //     return 1;  // oldkey was replaced with newkey, return +2
-  //   }
-  // } while (LLIteratorNext(iter));
-
-  // LLIteratorFree(iter);
-
-  // return 0;  // no key match in table, return 0
 }
 
 int LookupHashTable(HashTable table,
@@ -376,27 +351,6 @@ int HTIteratorNext(HTIter iter) {
 
   uint32_t i;
 
-  // if (LLIteratorNext(iter->bucket_it)) {
-  //   return 1; //succesffully advacned
-  // } else {
-  //   //LLIteratorFree(iter->bucket_it); // done with that iterator 
-  //   for (i = iter->bucket_num+1 ; i < iter->ht->num_buckets; i++) {
-  //     iter->bucket_num = i;
-  //     if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
-  //       LLIteratorFree(iter->bucket_it); // done with that iterator 
-  //       iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
-  //       if (iter->bucket_it == NULL) {
-  //         return 0;
-  //       } else {
-  //         return 1; // successfully advacned 
-  //       }
-  //     }
-  //   }
-  // }
-  // iter->bucket_num++; // now it's pointing off the end, that's ok
-  // iter->is_valid = false;
-  // return 0;  // did not advance 
-
   if (LLIteratorNext(iter->bucket_it)) {
     return 1;  // success
   } else {
@@ -407,13 +361,13 @@ int HTIteratorNext(HTIter iter) {
       if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
         LLIteratorFree(iter->bucket_it);
 
-        // nonempty bucket found
+        // nonempty bucket
         iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
 
         if (iter->bucket_it == NULL) {
-          return 0;
+          return 0;  // iterator no longer usable
         } else {
-          return 1;
+          return 1;  // success
         }
       }
     }
