@@ -137,8 +137,6 @@ bool PopLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     list->tail = NULL;
     free(list->head);
     list->head = NULL;
-    list->num_elements--;
-    return true;
   }
   // >=2 element case
   else if (list->num_elements >= 2) {
@@ -147,10 +145,9 @@ bool PopLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
     list->head->prev = NULL;
     free(headnode);
     headnode = NULL;
+  }
     list->num_elements--;
     return true;
-  }
-  return true;
 }
 
 bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
