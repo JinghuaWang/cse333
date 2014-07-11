@@ -226,14 +226,15 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   }
 
   do {
-    HTKeyValue *payloadPtr = NULL;
-    LLIteratorGetPayload(iter, (void **) &payloadPtr);
+    HTKeyValue *payloadPtr;
+    payloadPtr = NULL;
+    LLIteratorGetPayload(iter, (void *) &payloadPtr);
 
     if (payloadPtr->key == key) {
       *keyPtr = *payloadPtr;
       if (remove) {
         free(payloadPtr);
-        LLIteratorDelete(iter, LLNullFree);  // return payload and free it 
+        LLIteratorDelete(iter, free);  // return payload and free it 
       }
 
       LLIteratorFree(iter);
@@ -243,7 +244,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
 
   LLIteratorFree(iter);
 
-  return 0;  // no key match in table, return 1
+  return 0;  // no key match in table, return 0
 }
 
 int LookupHashTable(HashTable table,
