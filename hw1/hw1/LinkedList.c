@@ -144,9 +144,11 @@ bool PopLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
   // >=2 element case
   else {
     *payload_ptr = list->head->payload;
-    free(list->head);
-    list->head = list->head->next;
+    LinkedListNodePtr first = list->head;
+    list->head = first->next;
     list->head->prev = NULL;
+    free(list->head);
+    first = NULL;
     list->num_elements--;
   }
   return true;
