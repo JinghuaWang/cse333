@@ -33,7 +33,7 @@ static void ResizeHashtable(HashTable ht);
 
 // A private helper function as recommended in Part 1
 int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
-                              HTKeyValue *keyPtr, bool remove);
+                              HTKeyValue **keyPtr, bool remove);
 
 // a free function that does nothing
 static void LLNullFree(LLPayload_t freeme) { }
@@ -181,67 +181,98 @@ int InsertHashTable(HashTable table,
   // all that logic inside here.  You might also find that your helper
   // can be reused in steps 2 and 3.
 
-  HTKeyValuePtr newnodePtr = (HTKeyValuePtr) malloc(sizeof(HTKeyValue));
+  HTKeyValuePtr payload_ptr = (HTKeyValuePtr) malloc(sizeof(HTKeyValue));
 
   // malloc check
-  if (newnodePtr == NULL) {
+  if (payload_ptr == NULL) {
     return 0;
   }
 
-  newnodePtr->key = newkeyvalue.key;
-  newnodePtr->value = newkeyvalue.value;
+  payload_ptr->key = newkeyvalue.key;
+  payload_ptr->value = newkeyvalue.value;
 
-  // call our helper function (with remove set to TRUE)
-  int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
-
-  if (result == -1) {
-    free(newnodePtr);
-    newnodePtr = NULL;
-    return 0; // return 0 on failure
-  } else if (result == 1) {
-    table->num_elements--;
-  }
-
-  if (PushLinkedList(insertchain, newnodePtr)) {
-    table->num_elements++;
-    free(newnodePtr);
-    newnodePtr = NULL;
-    return result + 1;
+  if (NumElementsInLinkedList(insertchain) == 0) {
+    // empty chain; no need to search for recurring key
+    if (AppendLinkedList(insertchain, (void *) payload_ptr)) {
+      // append success; increment num_elements and return success
+      table->num_elements++;
+      return 1;
+    } else {
+      // append failed; prevent memory leak and return failure
+      free(payload_ptr);
+      payload_ptr = NULL;
+      return 0;
+    }
   } else {
-    free(newnodePtr);
-    newnodePtr = NULL;
-    return 0;
-  }
+    // chain has >= 1 elements; search for recurring key before insert
+    HTKeyValue *recurringkeyvalue;
+    int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, &recurringkeyvalue, false);
 
-  // return 0;  // You may need to change this return value.
+    if (result == -1) {
+      // error while looking up key; prevent memory leak and return failure
+      free(payload_ptr);
+      payload_ptr = NULL;
+      return 0;
+    } else if (result == 0) {
+      // no existing key/value with that key; append new keyvalue to list
+      if (AppendLinkedList(insertchain, (void *) payload_ptr)) {
+        // append success; increment num_elements and return success
+        table->num_elements++;
+        return 1;
+      } else {
+        // append failed; return failure and prevent memory leak
+        free(payload_ptr);
+        payload_ptr = NULL;
+        return 0;
+      }
+    } else {
+      // found existing key/value with that key; copy old keyvalue
+      // and replace with new keyvalue
+      *oldkeyvalue = *recurringkeyvalue;
+      recurringkeyvalue->value = (void *) newkeyvalue.value;
+
+      // prevent memory leak and tell the caller that an existing
+      // keyvalue has been replaced
+      free(payload_ptr);
+      payload_ptr = NULL;
+      return 2;
+    }
+  }
 }
 
 int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
-                              HTKeyValue *keyPtr, bool remove) {
+                              HTKeyValue **keyPtr, bool remove) {
   Verify333(keyPtr != NULL);
 
-  if (NumElementsInLinkedList(chain) == 0) {
-    return 0; //no match
-  }
+  // make an iterator pointed to the head of the list
   LLIter iter = LLMakeIterator(chain, 0);
   if (iter == NULL) {
-    return -1; // memory error
+    // failed to create iterator; return failure
+    return -1;
   }
-  do{ 
-    HTKeyValue *payload;
-    payload = NULL;
-    LLIteratorGetPayload(iter, (void *) &payload);
-    if (payload->key == key) {
-      *keyPtr = *payload;
-      if(remove) {
-        LLIteratorDelete(iter, LLNullFree);
-      }
+
+  // iterate through the bucket to find the element with the specified key
+  LLIteratorGetPayload(iter, (void **) keyPtr);
+  while ((*keyPtr)->key != key) {
+    if (!LLIteratorNext(iter)) {
+      // searched through all of the bucket; return not found
       LLIteratorFree(iter);
-      return 1; //found match and put its value in the returnparam
+      iter = NULL;
+      return 0;
+    } else {
+      LLIteratorGetPayload(iter, (void **) keyPtr);
     }
-  } while (LLIteratorNext(iter));
+  }
+
+  // optionally remove the found element
+  if (remove) {
+    LLIteratorDelete(iter, LLNullFree);
+  }
+
+  // return found
   LLIteratorFree(iter);
-  return 0; // no match
+  iter = NULL;
+  return 1;
 }
 
 int LookupHashTable(HashTable table,
@@ -257,9 +288,19 @@ int LookupHashTable(HashTable table,
   uint32_t lookupbucket = HashKeyToBucketNum(table, key);
   LinkedList lookupchain = table->buckets[lookupbucket];
 
-  int helper = HelperFunctionHashTable(lookupchain, key, keyvalue, false);
+  HTKeyValue *resultkeyvalue;
 
-  return helper;  // you may need to change this return value.
+  if (NumElementsInLinkedList(lookupchain) == 0) {
+    // empty chain; return not found
+    return 0;
+  } else {
+    // chain has >= 1 elements; search the chain
+    int result = HelperFunctionHashTable(lookupchain, key, &resultkeyvalue, false);
+    // copy the payload if found
+    if (result == 1)
+      *keyvalue = *resultkeyvalue;
+    return result;
+  }
 }
 
 int RemoveFromHashTable(HashTable table,
@@ -275,14 +316,23 @@ int RemoveFromHashTable(HashTable table,
   uint32_t removebucket = HashKeyToBucketNum(table, key);
   LinkedList removechain = table->buckets[removebucket];
 
-  int helper = HelperFunctionHashTable(removechain, key, keyvalue, true);
+  HTKeyValue *resultkeyvalue;
 
-  // key found
-  if (helper == 1) {
-    table->num_elements--;
+  if (NumElementsInLinkedList(removechain) == 0) {
+    // nothing to remove; return not found
+    return 0;
+  } else {
+    // chain has >= elements; search the chain and remove
+    int result = HelperFunctionHashTable(removechain, key, &resultkeyvalue, true);
+    if (result == 1) {
+      // copy/free the payload if remove was successful
+      *keyvalue = *resultkeyvalue;
+      free(resultkeyvalue);
+      resultkeyvalue = NULL;
+      table->num_elements--;
+    }
+    return result;
   }
-
-  return helper;  // you may need to change this return value.
 }
 
 HTIter HashTableMakeIterator(HashTable table) {
