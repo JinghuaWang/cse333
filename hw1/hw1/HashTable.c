@@ -181,15 +181,15 @@ int InsertHashTable(HashTable table,
   // all that logic inside here.  You might also find that your helper
   // can be reused in steps 2 and 3.
 
-  HTKeyValue *newnodePtr = (HTKeyValue *) malloc(sizeof(HTKeyValue));
+  HTKeyValuePtr newnode = (HTKeyValuePtr) malloc(sizeof(HTKeyValue));
 
   // malloc check
   if (newnodePtr == NULL) {
     return 0;
   }
 
-  newnodePtr->key = newkeyvalue.key;
-  newnodePtr->value = newkeyvalue.value;
+  // copy .key and .value
+  *newnodePtr = newkeyvalue;
 
   // call our helper function (with remove set to TRUE)
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
@@ -209,9 +209,6 @@ int InsertHashTable(HashTable table,
     free(newnodePtr);
     return 0;
   }
-
-  free(newnodePtr);
-  return 0;  // You may need to change this return value.
 }
 
 int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
