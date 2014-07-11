@@ -394,8 +394,6 @@ bool LLIteratorDelete(LLIter iter,
   // the iterator is pointing to, and also free any LinkedList
   // data structure element as appropriate.
 
-  printf("\nNUM ELEMENTS EARLY = %d\n", iter->list->num_elements);
-
   // degenerate case: empty list.
   if (iter->list->num_elements < 1) {
     return false;
@@ -445,7 +443,6 @@ bool LLIteratorDelete(LLIter iter,
 
   // subtract num_elements
   iter->list->num_elements--;
-  printf("\nNUM ELEMENTS HERE = %d\n", iter->list->num_elements);
   return true;
 }
 
