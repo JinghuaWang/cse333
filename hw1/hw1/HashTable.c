@@ -389,11 +389,12 @@ int HTIteratorPastEnd(HTIter iter) {
     return 1;
   }
 
-  // if valid return 0, else return 1
-  if (iter->is_valid) {
-    return 0;
-  } else {
+  // if test fails, flip is_valid flag and return 1, else return 0
+  if (iter->bucket_num >= iter->ht->num_buckets) {
+    iter->is_valid = false;
     return 1;
+  } else {
+    return 0;
   }
 
 }
