@@ -33,7 +33,7 @@ static void ResizeHashtable(HashTable ht);
 
 // A private helper function as recommended in Part 1
 int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
-                              HTKeyValue *keyPtr, bool remove);
+                              HTKeyValue **keyPtr, bool remove);
 
 // a free function that does nothing
 static void LLNullFree(LLPayload_t freeme) { }
@@ -181,14 +181,15 @@ int InsertHashTable(HashTable table,
   // all that logic inside here.  You might also find that your helper
   // can be reused in steps 2 and 3.
 
-  HTKeyValue *newnode = (HTKeyValue *) malloc(sizeof(HTKeyValue));
+  HTKeyValuePtr newnodePtr = (HTKeyValuePtr) malloc(sizeof(HTKeyValue));
 
   // malloc check
-  if (newnode == NULL) {
+  if (newnodePtr == NULL) {
     return 0;
   }
 
-  *newnode = newkeyvalue;
+  newnodePtr->key = newkeyvalue.key;
+  newnodePtr->value = newkeyvalue.value;
 
   // call our helper function (with remove set to TRUE)
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
@@ -212,7 +213,7 @@ int InsertHashTable(HashTable table,
 }
 
 int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
-                              HTKeyValue *keyPtr, bool remove) {
+                              HTKeyValue **keyPtr, bool remove) {
   Verify333(keyPtr != NULL);
 
   if (NumElementsInLinkedList(chain) == 0) {
@@ -225,26 +226,47 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
     return -1;  // if memory error, return 0
   }
 
-  do {
-    HTKeyValue *payloadPtr;
-    payloadPtr = NULL;
-    LLIteratorGetPayload(iter, (void *) &payloadPtr);
 
-    if (payloadPtr->key == key) {
-      *keyPtr = *payloadPtr;
-      if (remove) {
-        free(payloadPtr);
-        LLIteratorDelete(iter, free);  // return payload and free it 
-      }
-
+  LLIteratorGetPayload(iter, (void **) keyPtr);
+  while ((*keyPtr)->key == key) {
+    if (!LLIteratorNext(iter)) {
       LLIteratorFree(iter);
-      return 1;  // oldkey was replaced with newkey, return +2
+      iter = NULL;  // defensive programming
+      return 0;
+    } else {
+      LLIteratorGetPayload(iter, (void **) keyPtr);
     }
-  } while (LLIteratorNext(iter));
+  }
+
+  if (remove) {
+    LLIteratorDelete(iter, NullFree);
+  }
+  
 
   LLIteratorFree(iter);
+  iter = NULL;  // defensive
+  return 1;  // return found
 
-  return 0;  // no key match in table, return 0
+  // do {
+  //   HTKeyValue *payloadPtr;
+  //   payloadPtr = NULL;
+  //   LLIteratorGetPayload(iter, (void *) &payloadPtr);
+
+  //   if (payloadPtr->key == key) {
+  //     *keyPtr = *payloadPtr;
+  //     if (remove) {
+  //       free(payloadPtr);
+  //       LLIteratorDelete(iter, free);  // return payload and free it 
+  //     }
+
+  //     LLIteratorFree(iter);
+  //     return 1;  // oldkey was replaced with newkey, return +2
+  //   }
+  // } while (LLIteratorNext(iter));
+
+  // LLIteratorFree(iter);
+
+  // return 0;  // no key match in table, return 0
 }
 
 int LookupHashTable(HashTable table,
