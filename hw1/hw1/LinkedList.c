@@ -52,11 +52,11 @@ void FreeLinkedList(LinkedList list,
   // sweep through the list and free all of the nodes' payloads as
   // well as the nodes themselves
   while (list->head != NULL) {
+    // shift to next
+    list->head = list->head->next;    
+
     // free payload
     payload_free_function(list->head->payload);
-
-    // shift to next
-    list->head = list->head->next;
 
     // free node
     free(list->head);
@@ -137,16 +137,18 @@ bool PopLinkedList(LinkedList list, LLPayload_t *payload_ptr) {
   // Single element case
   else if (list->num_elements == 1) {
     *payload_ptr = list->head->payload;
+    list->tail = NULL;
     free(list->head);
-    list->head = list->tail = NULL;
+    list->head = NULL;
     list->num_elements--;
   }
   // >=2 element case
   else {
     *payload_ptr = list->head->payload;
-    free(list->head);
     list->head = list->head->next;
     list->head->prev = NULL;
+    free(list->head);
+    list->head = NULL;
     list->num_elements--;
   }
   return true;
