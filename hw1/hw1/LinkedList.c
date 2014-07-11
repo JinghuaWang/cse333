@@ -441,6 +441,7 @@ bool LLIteratorDelete(LLIter iter,
 
   // subtract num_elements
   iter->list->num_elements--;
+  printf("\nNUM ELEMENTS HERE = %d\n", iter->list->num_elements);
   return true;
 }
 
