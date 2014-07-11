@@ -437,11 +437,11 @@ bool LLIteratorDelete(LLIter iter,
     payload_free_function(payload);
     iter->node = iter->node->next;
     free(iter->node);
-
+    iter->list->num_elements--;
   }
 
   // subtract num_elements
-  iter->list->num_elements--;
+  
   printf("\nNUM ELEMENTS HERE = %d\n", iter->list->num_elements);
   return true;
 }
