@@ -351,8 +351,7 @@ int HTIteratorNext(HTIter iter) {
 
         // nonempty bucket found
         iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
-
-        break;
+        
       }
     }
 
@@ -403,10 +402,8 @@ int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
     return 0;
   }
 
-  payload = NULL;
-  LLIteratorGetPayload(iter->bucket_it, (void *) &payload);
+  LLIteratorGetPayload(iter->bucket_it, (void **) &payload);
   *keyvalue = *payload;
-
 
   return 1;  // you might need to change this return value.
 }
