@@ -210,7 +210,8 @@ int InsertHashTable(HashTable table,
     return 0;
   }
 
-  // return 0;  // You may need to change this return value.
+  free(newnodePtr);
+  return 0;  // You may need to change this return value.
 }
 
 int HelperFunctionHashTable(LinkedList chain, uint64_t key, 
