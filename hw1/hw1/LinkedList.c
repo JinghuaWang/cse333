@@ -164,6 +164,8 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
 
   if (list->num_elements == 0) {
     // degenerate case; list is currently empty
+    Verify333(list->head == NULL);  // debugging aid
+    Verify333(list->tail == NULL);  // debugging aid    
     return PushLinkedList(list, payload);
   }
 
@@ -182,8 +184,6 @@ bool AppendLinkedList(LinkedList list, LLPayload_t payload) {
 
   // typical case; list has >=1 elements
   if (list->num_elements >= 1) {
-    Verify333(list->head == NULL);  // debugging aid
-    Verify333(list->tail == NULL);  // debugging aid
     ln->next = NULL;
     ln->prev = list->tail;    
     list->tail->next = ln;
