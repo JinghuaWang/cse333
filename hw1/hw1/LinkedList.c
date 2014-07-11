@@ -418,10 +418,7 @@ bool LLIteratorDelete(LLIter iter,
     PopLinkedList(iter->list, &payload);
     payload_free_function(payload);
     iter->node = iter->list->head;
-    // subtract num_elements
-    iter->list->num_elements--;
 
-    return true;
   }
   // degenerate case: iter points at tail
   else if (iter->node == iter->list->tail) {
@@ -429,10 +426,6 @@ bool LLIteratorDelete(LLIter iter,
     SliceLinkedList(iter->list, &payload);
     payload_free_function(payload);
     iter->node = iter->list->tail;
-    // subtract num_elements
-    iter->list->num_elements--;
-
-    return true;
   }
   // fully general case: iter points in the middle of a list,
   //                       and you have to "splice".
@@ -445,13 +438,10 @@ bool LLIteratorDelete(LLIter iter,
     iter->node = iter->node->next;
     free(iter->node);
 
-    // subtract num_elements
-    iter->list->num_elements--;
-
-    return true;
   }
 
-
+  // subtract num_elements
+  iter->list->num_elements--;
   return true;
 }
 
