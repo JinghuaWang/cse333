@@ -195,7 +195,7 @@ int InsertHashTable(HashTable table,
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
 
   if (result == -1) {
-    free(newnode);
+    free(newnodePtr);
     return 0; // return 0 on failure
   } else if (result == 1) {
     table->num_elements--;
@@ -226,26 +226,32 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
     return -1;  // if memory error, return 0
   }
 
+  HTKeyValue *payloadPtr;
+  payloadPtr = NULL;
 
-  LLIteratorGetPayload(iter, (void *) keyPtr);
-  while ((*keyPtr)->key == key) {
-    if (!LLIteratorNext(iter)) {
+  LLIteratorGetPayload(iter, (void *) &payloadPtr);
+  while (LLIteratorNext(iter)) {
+    if (payloadPtr->key == key) {
+      *keyPtr = *payloadPtr;
+
+      if (remove) {
+        LLIteratorDelete(iter, LLNullFree);
+      }
+
       LLIteratorFree(iter);
       iter = NULL;  // defensive programming
-      return 0;
+      return 1;
     } else {
       LLIteratorGetPayload(iter, (void *) keyPtr);
     }
   }
 
-  if (remove) {
-    LLIteratorDelete(iter, LLNullFree);
-  }
+
   
 
   LLIteratorFree(iter);
   iter = NULL;  // defensive
-  return 1;  // return found
+  return 0;  // no match
 
   // do {
   //   HTKeyValue *payloadPtr;
