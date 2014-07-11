@@ -204,7 +204,6 @@ int InsertHashTable(HashTable table,
 
   if (PushLinkedList(insertchain, newnodePtr)) {
     table->num_elements++;
-        free(newnodePtr);
     return result + 1;
   } else {
     free(newnodePtr);
