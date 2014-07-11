@@ -195,6 +195,7 @@ int InsertHashTable(HashTable table,
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
 
   if (result == -1) {
+    free(newnodePtr);
     return 0; // return 0 on failure
   } else if (result == 1) {
     table->num_elements--;
@@ -216,27 +217,62 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   Verify333(keyPtr != NULL);
 
   if (NumElementsInLinkedList(chain) == 0) {
-    return 0; //no match
+    return 0;  // if no match, return 0
   }
+
   LLIter iter = LLMakeIterator(chain, 0);
+
   if (iter == NULL) {
-    return -1; // memory error
+    return -1;  // if memory error, return 0
   }
-  do{ 
-    HTKeyValue *payload;
-    payload = NULL;
-    LLIteratorGetPayload(iter, (void *) &payload);
-    if (payload->key == key) {
-      *keyPtr = *payload;
-      if(remove) {
+
+  HTKeyValue *payloadPtr;
+  payloadPtr = NULL;
+
+  LLIteratorGetPayload(iter, (void **) &payloadPtr);
+  while (LLIteratorNext(iter)) {
+    if (payloadPtr->key == key) {
+      *keyPtr = *payloadPtr;
+
+      if (remove) {
         LLIteratorDelete(iter, LLNullFree);
       }
+
       LLIteratorFree(iter);
-      return 1; //found match and put its value in the returnparam
+      iter = NULL;  // defensive programming
+      return 1;
+    } else {
+      LLIteratorGetPayload(iter, (void **) keyPtr);
     }
-  } while (LLIteratorNext(iter));
+  }
+
+
+  
+
   LLIteratorFree(iter);
-  return 0; // no match
+  iter = NULL;  // defensive
+  return 0;  // no match
+
+  // do {
+  //   HTKeyValue *payloadPtr;
+  //   payloadPtr = NULL;
+  //   LLIteratorGetPayload(iter, (void *) &payloadPtr);
+
+  //   if (payloadPtr->key == key) {
+  //     *keyPtr = *payloadPtr;
+  //     if (remove) {
+  //       free(payloadPtr);
+  //       LLIteratorDelete(iter, free);  // return payload and free it 
+  //     }
+
+  //     LLIteratorFree(iter);
+  //     return 1;  // oldkey was replaced with newkey, return +2
+  //   }
+  // } while (LLIteratorNext(iter));
+
+  // LLIteratorFree(iter);
+
+  // return 0;  // no key match in table, return 0
 }
 
 int LookupHashTable(HashTable table,
@@ -249,10 +285,10 @@ int LookupHashTable(HashTable table,
 
   // calculate which bucket we're inserting into,
   // grab its linked list chain
-  uint32_t lookupbucket = HashKeyToBucketNum(table, key);
-  LinkedList lookupchain = table->buckets[lookupbucket];
+  uint32_t bucket = HashKeyToBucketNum(table, key);
+  LinkedList chain = table->buckets[bucket];
 
-  int helper = HelperFunctionHashTable(lookupchain, key, keyvalue, false);
+  int helper = HelperFunctionHashTable(chain, key, keyvalue, false);
 
   return helper;  // you may need to change this return value.
 }
@@ -267,10 +303,10 @@ int RemoveFromHashTable(HashTable table,
 
   // calculate which bucket we're inserting into,
   // grab its linked list chain
-  uint32_t removebucket = HashKeyToBucketNum(table, key);
-  LinkedList removechain = table->buckets[removebucket];
+  uint32_t bucket = HashKeyToBucketNum(table, key);
+  LinkedList chain = table->buckets[bucket];
 
-  int helper = HelperFunctionHashTable(removechain, key, keyvalue, true);
+  int helper = HelperFunctionHashTable(chain, key, keyvalue, true);
 
   // key found
   if (helper == 1) {
@@ -336,30 +372,41 @@ int HTIteratorNext(HTIter iter) {
 
   // Step 4 -- implement HTIteratorNext.
 
-  // COPIED
-
   uint32_t i;
 
   if (LLIteratorNext(iter->bucket_it)) {
-    return 1; //succesffully advacned
+    return 1;  // success
   } else {
-    //LLIteratorFree(iter->bucket_it); // done with that iterator 
-    for (i = iter->bucket_num+1 ; i < iter->ht->num_buckets; i++) {
-      iter->bucket_num = i;
+    LLIteratorFree(iter->bucket_it); // free iter
+    iter->bucket_it = NULL;  // defensive programming
+
+
+    for (i = iter->bucket_num + 1; i < iter->ht->num_buckets; i++) {
+
       if (NumElementsInLinkedList(iter->ht->buckets[i]) > 0) {
-        LLIteratorFree(iter->bucket_it); // done with that iterator 
+        
+        iter->bucket_num = i;
+
+        // nonempty bucket found
         iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
-        if (iter->bucket_it == NULL) {
-          return 0;
-        } else {
-          return 1; // successfully advacned 
-        }
+
       }
     }
+
+    if (i >= iter->ht->num_buckets) {
+      iter->is_valid = false;
+      return 0;
+    }
+
+    if (iter->bucket_it == NULL) {
+      return 0;
+    } else {
+      return 1;
+    }
   }
-  iter->bucket_num++; // now it's pointing off the end, that's ok
-  iter->is_valid = false;
-  return 0;  // did not advance
+
+
+  return 0;  // you might need to change this return value.
 }
 
 int HTIteratorPastEnd(HTIter iter) {
@@ -367,10 +414,15 @@ int HTIteratorPastEnd(HTIter iter) {
 
   // Step 5 -- implement HTIteratorPastEnd.
   
-  // COPIED
-  if(iter->ht->num_elements < 1 || iter->bucket_num >= iter->ht->num_buckets) {
+  // if table is empty, return 1
+  if (iter->ht->num_elements == 0) {
+    return 1;
+  }
+
+  // if test fails, flip is_valid flag and return 1, else return 0
+  if (iter->bucket_num >= iter->ht->num_buckets) {
     iter->is_valid = false;
-    return 1; //table empty 
+    return 1;
   } else {
     return 0;
   }
@@ -382,16 +434,17 @@ int HTIteratorGet(HTIter iter, HTKeyValue *keyvalue) {
 
   // Step 6 -- implement HTIteratorGet.
 
-  // COPIED
-  if (!iter->is_valid || HTIteratorPastEnd(iter) == 1) {
-    return 0; // empty table or messed up iterator 
-  } else { 
-    HTKeyValue *payload;
-    payload = NULL;
-    LLIteratorGetPayload(iter->bucket_it, (void *) &payload);
-    *keyvalue = *payload;
-    return 1;
-  } 
+  HTKeyValue *payload = NULL;
+
+  // if empty or invalid, return 0
+  if (HTIteratorPastEnd(iter) == 1) {
+    return 0;
+  }
+
+  LLIteratorGetPayload(iter->bucket_it, (void *) &payload);
+  *keyvalue = *payload;
+
+  return 1;  // you might need to change this return value.
 }
 
 int HTIteratorDelete(HTIter iter, HTKeyValue *keyvalue) {
