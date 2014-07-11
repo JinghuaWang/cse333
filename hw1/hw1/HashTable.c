@@ -216,7 +216,7 @@ int HelperFunctionHashTable(LinkedList chain, uint64_t key,
   Verify333(keyPtr != NULL);
 
   if (NumElementsInLinkedList(chain) == 0) {
-    return 1;  // if no match, return 1
+    return 0;  // if no match, return 0
   }
 
   LLIter iter = LLMakeIterator(chain, 0);
