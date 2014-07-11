@@ -191,6 +191,7 @@ int InsertHashTable(HashTable table,
 
   // call our helper function (with remove set to TRUE)
   int result = HelperFunctionHashTable(insertchain, newkeyvalue.key, oldkeyvalue, true);
+  printf("%d\n", result);
 
   if (result == -1) {
     free(newnode);
@@ -351,7 +352,7 @@ int HTIteratorNext(HTIter iter) {
 
         // nonempty bucket found
         iter->bucket_it = LLMakeIterator(iter->ht->buckets[iter->bucket_num], 0UL);
-        
+
       }
     }
 
