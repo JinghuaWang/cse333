@@ -419,8 +419,13 @@ int HTIteratorNext(HTIter iter) {
     }
   }
 
+  // point off the end
+  iter->bucket_num++;
 
-  return 0;  // you might need to change this return value.
+  // flip is_valid flag to false
+  iter->is_valid = false;
+
+  return 0;  
 }
 
 int HTIteratorPastEnd(HTIter iter) {
