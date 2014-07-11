@@ -91,7 +91,7 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
     Verify333(list->tail == NULL);  // debugging aid
     ln->next = ln->prev = NULL;
     list->head = list->tail = ln;
-    list->num_elements = 1U;
+    list->num_elements++;
     return true;
   }
 
