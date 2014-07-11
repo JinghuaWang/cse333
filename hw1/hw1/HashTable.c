@@ -173,6 +173,7 @@ int InsertHashTable(HashTable table,
   insertchain = table->buckets[insertbucket];
 
   Verify333(insertchain != NULL);
+  Verify333(insertchain->head != NULL);
 
   // Step 1 -- finish the implementation of InsertHashTable.
   // This is a fairly complex task, so you might decide you want
