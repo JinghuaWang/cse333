@@ -52,15 +52,14 @@ void FreeLinkedList(LinkedList list,
   // sweep through the list and free all of the nodes' payloads as
   // well as the nodes themselves
   while (list->head != NULL) {
-    // Set curr ptr to head and shift head to next
-    LinkedListNodePtr curr = list->head;
-    list->head = list->head->next;
-
     // free payload
-    payload_free_function(curr->payload);
+    payload_free_function(list->head->payload);
 
     // free node
-    free(curr);
+    free(list->head);
+
+    // shift to next
+    list->head = list->head->next;
 
     // subtract the number of elements by 1
     list->num_elements--;
