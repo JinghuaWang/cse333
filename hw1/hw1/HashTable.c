@@ -181,7 +181,7 @@ int InsertHashTable(HashTable table,
   // all that logic inside here.  You might also find that your helper
   // can be reused in steps 2 and 3.
 
-  HTKeyValuePtr newnodePtr = (HTKeyValuePtr) malloc(sizeof(HTKeyValue));
+  HTKeyValue *newnodePtr = (HTKeyValue *) malloc(sizeof(HTKeyValue));
 
   // malloc check
   if (newnodePtr == NULL) {
@@ -200,7 +200,7 @@ int InsertHashTable(HashTable table,
     table->num_elements--;
   }
 
-  if (AppendLinkedList(insertchain, newnodePtr)) {
+  if (PushLinkedList(insertchain, newnodePtr)) {
     table->num_elements++;
     return result + 1;
   } else {
