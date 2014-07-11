@@ -116,7 +116,7 @@ bool PushLinkedList(LinkedList list, LLPayload_t payload) {
     return true;
   }
 
-
+  free(ln);
 
   // return success
   return true;
