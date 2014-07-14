@@ -82,10 +82,10 @@ int main(int argc, char **argv) {
 
 void PrintTextFile(char *fn) {
   // Uncomment for more clarity in console window
-  //fprintf(stdout, "\n****THIS IS THE START OF THE FILE %s****\n", fn);
+  // fprintf(stdout, "\n****THIS IS THE START OF THE FILE %s****\n", fn);
 
   int fd = open(fn, O_RDONLY);
-  off_t filesize = lseek(fd, 0, SEEK_END);  // get filesize for buffer
+  off_t filesize = lseek(fd, 0, SEEK_END) + 1;  // get filesize for buffer
   lseek(fd, 0, SEEK_SET);  // return pointer to top of the file
 
   if (fd == -1) {
@@ -95,7 +95,7 @@ void PrintTextFile(char *fn) {
 
   // Set bytes and malloc a buffer
   int n = filesize;
-  char *buf = calloc(filesize, sizeof(char));
+  char *buf = calloc(filesize, sizeof(fn[0]));
 
   int bytes_left = n;
   ssize_t result = -1;
@@ -112,9 +112,9 @@ void PrintTextFile(char *fn) {
 
     bytes_left -= result;
   }
-  free(buf);  // Free buffer    
+  free(buf);  // Free buffer
   close(fd);
 
   // Uncomment for more clarity in console window
-  //fprintf(stdout, "\n****THAT IS THE END OF THE FILE %s****\n\n", fn);
+  // fprintf(stdout, "\n****THAT IS THE END OF THE FILE %s****\n\n", fn);
 }
