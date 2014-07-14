@@ -1,0 +1,3 @@
+Hello welcome to my foo.txt file!!
+
+THIS IS THE END OF FOO

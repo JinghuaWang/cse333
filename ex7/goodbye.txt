@@ -1,0 +1,7 @@
+This is a goodbye message from the goodbye text file.
+
+New line.
+
+New line.
+
+THIS IS THE END OF GOODBYE
