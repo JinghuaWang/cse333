@@ -18,6 +18,9 @@
 
 void PrintTextFile(char *fn);
 
+// Avoid implicit declaration error:
+int readdir_r(DIR *dirp, struct dirent *entry, struct dirent **result);
+
 int main(int argc, char **argv) {
   DIR *dirp;
   struct dirent *entryp, *result;
@@ -78,21 +81,24 @@ int main(int argc, char **argv) {
 }
 
 void PrintTextFile(char *fn) {
-  // Uncomment for clarity in console window
-  // fprintf(stdout, "\n****THIS IS THE START OF THE FILE %s****\n", fn);
+  // Uncomment for more clarity in console window
+  //fprintf(stdout, "\n****THIS IS THE START OF THE FILE %s****\n", fn);
 
   int fd = open(fn, O_RDONLY);
+  off_t filesize = lseek(fd, 0, SEEK_END);  // get filesize for buffer
+  lseek(fd, 0, SEEK_SET);  // return pointer to top of the file
+
   if (fd == -1) {
     perror("File failed to open.");
     exit(EXIT_FAILURE);
   }
 
-  // Set arbitrary # of bytes and malloc a buffer
-  int n = 1024;
-  char *buf = malloc(sizeof(fn[0]) * 1024);
+  // Set bytes and malloc a buffer
+  int n = filesize;
+  char *buf = calloc(filesize, sizeof(char));
 
   int bytes_left = n;
-  int result = -1;
+  ssize_t result = -1;
   while ((result = read(fd, buf + (n - bytes_left), bytes_left)) > 0) {
     if (result == -1) {
       if (errno != EINTR) {
@@ -103,11 +109,12 @@ void PrintTextFile(char *fn) {
       continue;
     }
     fprintf(stdout, "%s", buf);
+
     bytes_left -= result;
   }
-  free(buf);  // Clear buffer (for next file)
+  free(buf);  // Free buffer    
   close(fd);
 
-  // Uncomment for clarity in console window
-  // fprintf(stdout, "\n****THAT IS THE END OF THE FILE %s****\n\n", fn);
+  // Uncomment for more clarity in console window
+  //fprintf(stdout, "\n****THAT IS THE END OF THE FILE %s****\n\n", fn);
 }

@@ -1,3 +1,7 @@
-Hello welcome to my foo.txt file!!
+This is the FOO file.
 
-THIS IS THE END OF FOO
+It is a very nice file.
+
+One of my favorites in fact.
+
+End of FOO
