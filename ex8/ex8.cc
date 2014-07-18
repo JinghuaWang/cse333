@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   while (!(cin >> num)) {
     cin.clear();
     cin.ignore(256, '\n');
-    cout << "Please enter a valid integer. ";
+    cout << "Please enter a valid integer: ";
   }
 
   // If valid, print factors (brute force)
