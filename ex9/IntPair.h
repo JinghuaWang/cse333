@@ -12,8 +12,8 @@
 class IntPair {
  public:
   IntPair(const int x, const int y);  // constructor
-  void Get(int &x, int &y) const;
-  void Set(const int x, const int y);
+  void Get(int &x, int &y) const;  // member function
+  void Set(const int x, const int y);  // member function
 
  private:
   int x_;  // data member

@@ -35,10 +35,11 @@ void Test(IntPair pair) {
   int y = 0;
   pair.Get(x, y);
 
-  x += 1;
-  y += 1;
+  x++;
+  y++;
 
   pair.Set(x, y);
+  pair.Get(x, y);
 
   return;
 }
