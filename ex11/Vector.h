@@ -6,8 +6,8 @@
 //  Email: grantn2@uw.edu
 //
 
-#ifndef EX10_VECTOR_H_
-#define EX10_VECTOR_H_
+#ifndef EX11_VECTOR_H_
+#define EX11_VECTOR_H_
 
 namespace vector333 {
 
@@ -15,10 +15,10 @@ class Vector {
  public:
   // default constructor
   Vector();
-  
+
   // normal constructor
   Vector(const double x, const double y, const double z);
-  
+
   // copy constructor
   Vector(const Vector& copyme);
 
@@ -40,6 +40,6 @@ class Vector {
   double * arry_;
 };  // class Vector
 
-}  // namespace vector
+}  // namespace vector333
 
-#endif  // EX10_VECTOR_H_
+#endif  // EX11_VECTOR_H_

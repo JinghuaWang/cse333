@@ -6,8 +6,8 @@
 //  Email: grantn2@uw.edu
 //
 
-#include <iostream>
 #include <stdlib.h>
+#include <iostream>
 #include "Vector.h"
 
 namespace vector333 {
@@ -96,4 +96,4 @@ std::ostream &operator<<(std::ostream &out, const Vector &a) {
 }
 
 
-}  // namespace vector
+}  // namespace vector333
