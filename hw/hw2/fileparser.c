@@ -291,11 +291,12 @@ static void AddToHashtable(HashTable tab, char *word, DocPositionOffset_t pos) {
 
     // allocate new WordPositions struct
     wp = (WordPositions *) malloc(sizeof(WordPositions));
-    Verify333(wp != null);  // mem error check
+    Verify333(wp != NULL);  // mem error check
 
     // prepare wp
-    wp->word = (char *) malloc(strlen(word) + 1);
-    Verify333(wp->word != NULL);
+    newstr = (char *) malloc(strlen(word) + 1);
+    Verify333(newstr != NULL);
+    wp->word = newstr;
     strcpy(wp->word, word);
 
     wp->positions = AllocateLinkedList();
