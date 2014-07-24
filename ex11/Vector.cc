@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+
 #include "Vector.h"
 
 namespace vector333 {

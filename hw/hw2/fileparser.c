@@ -69,21 +69,37 @@ char *ReadFile(const char *filename, HWSize_t *size) {
   // properties of the file. ("man 2 stat"). [You can assume we're on a 64-bit
   // system, with a 64-bit off_t field.]
 
+  if (stat(filename, &filestat) < 0) {
+    return NULL;
+  }
+
 
   // STEP 2.
   // Make sure this is a "regular file" and not a directory
   // or something else.  (use the S_ISREG macro described
   // in "man 2 stat")
 
+  if (!S_ISREG(filestat.st_mode)) {
+    return NULL;
+  }
+
 
   // STEP 3.
   // Attempt to open the file for reading.  (man 2 open)
-
+  
+  fd = open(filename, O_RDONLY);
+  if (fd < 0) {
+    return NULL;
+  }
 
   // STEP 4.
   // Allocate space for the file, plus 1 extra byte to
   // NULL-terminate the string.
 
+  buf = (char *) malloc(filestat.st_size + 1);
+  if (buf == NULL) {
+    return NULL;
+  }
 
   // STEP 5.
   // Read in the file contents.  Use the read system call. (man 2 read.)  Be
@@ -94,8 +110,21 @@ char *ReadFile(const char *filename, HWSize_t *size) {
   // recoverable error.  (Read the man page for "read()" carefully, in
   // particular what the return values -1 and 0 imply.)
   left_to_read = filestat.st_size;
+  numread = filestat.st_size;
   while (left_to_read > 0) {
+    // Pulled from ex7 code
+    result = read(fd, buf + (numread - left_to_read), left_to_read);
+    if (result == -1) {
+      if (errno != EAGAIN && errno != EINTR) {
+        // non-recoverable error
+        return NULL;
+      }
 
+      // we're okay, try again.
+      continue;
+    }
+
+    left_to_read -= result;
   }
 
   // Great, we're done!  We hit the end of the file and we
@@ -124,6 +153,11 @@ HashTable BuildWordHT(char *filename) {
   // file turns out to be empty (i.e., its length is 0),
   // or you couldn't read the file at all, return NULL to indicate
   // failure.
+
+  filecontent = ReadFile(filename, &filelen);
+  if (filecontent == NULL || filelen < 1) {
+    return NULL;
+  }
 
 
   // Verify that the file contains only ASCII text.  We won't try to index any
@@ -173,7 +207,7 @@ static void LoopAndInsert(HashTable tab, char *content) {
   //
   // "content" contains a C string with the full contents
   // of the file.  You need to implement a loop that steps through the
-  // file content  a character at a time, testing to see whether a
+  // file content a character at a time, testing to see whether a
   // character is an alphabetic character or not.  If a character is
   // alphabetic, it's part of a word.  If a character is not
   // alphabetic, it's part of the boundary between words.
@@ -203,8 +237,27 @@ static void LoopAndInsert(HashTable tab, char *content) {
   //    AddToHashTable(tab, wordstart, pos);
   //
 
-  while (1) {
+  int between_words = 1;  // 1 = not currently in a word, 0 = in a word
 
+  while (1) {
+    if (*curptr == '\0') break;  // null terminator check
+    *curptr = tolower(*curptr);
+
+    if (between_words == 1) {
+      if (isalpha(*curptr) != 0) {
+        between_words = 0;  // currently in a word
+        wordstart = curptr;
+      }
+    } else {
+      if (isalpha(*curptr) == 0) {
+        between_words = 1;  // word just ended, now between words
+        DocPositionOffset_t pos = wordstart - content;
+        *curptr = '\0';
+        AddToHashtable(tab, wordstart, pos);
+      }
+    }
+    
+    curptr++;
   }
 }
 
@@ -236,5 +289,28 @@ static void AddToHashtable(HashTable tab, char *word, DocPositionOffset_t pos) {
     WordPositions *wp;
     char *newstr;
 
+    // allocate new WordPositions struct
+    wp = (WordPositions *) malloc(sizeof(WordPositions));
+    Verify333(wp != null);  // mem error check
+
+    // prepare wp
+    wp->word = (char *) malloc(strlen(word) + 1);
+    Verify333(wp->word != NULL);
+    strcpy(wp->word, word);
+
+    wp->positions = AllocateLinkedList();
+    Verify333(wp->positions != NULL);
+
+    // append to the list (like above)
+    retval = AppendLinkedList(wp->positions, (LLPayload_t) ((intptr_t) pos));
+    Verify333(retval != 0);
+
+    // insert into HT
+    kv.key = hashKey;
+    kv.value = wp;
+    
+    HTKeyValue keyval;
+    retval = InsertHashTable(tab, kv, &keyval);
+    Verify333(retval != 0);    
   }
 }
