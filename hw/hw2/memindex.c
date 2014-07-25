@@ -113,7 +113,7 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     strcpy(wds->word, word);
 
     // (2) allocate a new hashtable for the docID->positions mapping
-    wds->docIDs = AllocateHashTable(16);
+    wds->docIDs = AllocateHashTable(8);
     Verify333(wds->docIDs != NULL);
 
     // (3) insert that hashtable into the WordDocSet
@@ -267,8 +267,6 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
     llit = LLMakeIterator(retlist, 0);
     ne = NumElementsInLinkedList(retlist);
 
-    printf("\n\nne == %d", ne);
-
     wds = (WordDocSet *) kv.value;
 
     for (j = 0; j < ne; j++) {
@@ -299,8 +297,6 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
   // free retlist and return NULL.
   if (NumElementsInLinkedList(retlist) == 0) {
     FreeLinkedList(retlist, (LLPayloadFreeFnPtr)free);
-        printf("\nYou are going out at number: 3\n");
-
     return NULL;
   }
 
