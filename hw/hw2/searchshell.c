@@ -124,11 +124,11 @@ static void readQuery(char** query, int* qlen) {
     fprintf(stderr, "Not a valid input\n");
     Usage();
   }
-  // Also check for '\n' and '\0' (otherwise segfault)
-  if (query[0] == '\n' || query[0] == '\0') {
-    fprintf(stderr, "Not a valid input\n");
-    Usage();
-  }
+  // // Also check for '\n' and '\0' (otherwise segfault)
+  // if (query[0] == '\n' || query[0] == '\0') {
+  //   fprintf(stderr, "Not a valid input\n");
+  //   Usage();
+  // }
 
   // Once we're past query[0], loop through input
   while (1) {
