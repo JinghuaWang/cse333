@@ -192,6 +192,7 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
   // if no matching documents, free retlist and return NULL
   if (res == 0) {
     FreeLinkedList(retlist, &free);
+    printf("\nYou are going out at number: 1\n");
     return NULL;
   }
 
@@ -246,6 +247,7 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
     // no matches, free retlist and return NULL
     if (res == 0) {
       FreeLinkedList(retlist, &free);
+          printf("\nYou are going out at number: 2\n");
       return NULL;
     }
 
@@ -293,6 +295,8 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
   // free retlist and return NULL.
   if (NumElementsInLinkedList(retlist) == 0) {
     FreeLinkedList(retlist, (LLPayloadFreeFnPtr)free);
+        printf("\nYou are going out at number: 3\n");
+
     return NULL;
   }
 
