@@ -138,7 +138,6 @@ static void readQuery(char** query, int* qlen) {
     query[*qlen] = strtok_r(NULL, " ", &saveptr);
   }
 
-  free(buf);
   return;
 }
 
