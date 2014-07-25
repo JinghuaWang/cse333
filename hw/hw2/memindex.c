@@ -86,7 +86,7 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
   // even though you hadn't yet finished the
   // memindex.c implementation.
 
-  //return 1;
+  // return 1;
 
   // First, we have to see if the word we're being handed
   // already exists in the inverted index.

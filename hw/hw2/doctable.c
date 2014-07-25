@@ -51,7 +51,7 @@ void FreeDocTable(DocTable table) {
   Verify333(table != NULL);
 
   // STEP 1.
-  
+
   FreeHashTable(table->docid_to_docname, free);
   FreeHashTable(table->docname_to_docid, free);
   free(table);
@@ -101,7 +101,7 @@ DocID_t DTRegisterDocumentName(DocTable table, char *docname) {
   // STEP 3.
   // Set up the key/value for the docid_to_docname mapping, and
   // do the insert.
-  
+
   // Set up key/value
   kv.key = *docid;
   kv.value = doccopy;

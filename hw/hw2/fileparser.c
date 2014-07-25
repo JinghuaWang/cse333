@@ -86,7 +86,7 @@ char *ReadFile(const char *filename, HWSize_t *size) {
 
   // STEP 3.
   // Attempt to open the file for reading.  (man 2 open)
-  
+
   fd = open(filename, O_RDONLY);
   if (fd < 0) {
     return NULL;
@@ -256,7 +256,7 @@ static void LoopAndInsert(HashTable tab, char *content) {
         AddToHashtable(tab, wordstart, pos);
       }
     }
-    
+
     curptr++;
   }
 }
@@ -275,8 +275,9 @@ static void AddToHashtable(HashTable tab, char *word, DocPositionOffset_t pos) {
   retval = LookupHashTable(tab, hashKey, &kv);
   if (retval == 1) {
     // Yes; we just need to add a position in using AppendLinkedList().  Note
-    // how we're casting the DocPositionOffset_t position variable to an LLPayload_t to store
-    // it in the linked list payload without needing to malloc space for it.
+    // how we're casting the DocPositionOffset_t position variable to an
+    // LLPayload_t to store it in the linked list payload without needing
+    // to malloc space for it.
     // Ugly, but it works!
     WordPositions *wp = (WordPositions *) kv.value;
     retval = AppendLinkedList(wp->positions, (LLPayload_t) ((intptr_t) pos));
@@ -297,7 +298,8 @@ static void AddToHashtable(HashTable tab, char *word, DocPositionOffset_t pos) {
     newstr = (char *) malloc(strlen(word) + 1);
     Verify333(newstr != NULL);
     wp->word = newstr;
-    strcpy(wp->word, word);
+    // strcpy(wp->word, word);  // clint.py no likey
+    snprintf(newstr, len, word);  // "almost always, snprintf is better..."
 
     wp->positions = AllocateLinkedList();
     Verify333(wp->positions != NULL);
@@ -309,9 +311,9 @@ static void AddToHashtable(HashTable tab, char *word, DocPositionOffset_t pos) {
     // insert into HT
     kv.key = hashKey;
     kv.value = wp;
-    
+
     HTKeyValue keyval;
     retval = InsertHashTable(tab, kv, &keyval);
-    Verify333(retval != 0);    
+    Verify333(retval != 0);
   }
 }
