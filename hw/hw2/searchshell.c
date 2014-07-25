@@ -30,7 +30,7 @@
 #include "memindex.h"
 #include "filecrawler.h"
 
-static void readQuery(char** query, int* qlen);
+static char* readQuery(char** query, int* qlen);
 static void printResults(LinkedList retlist, DocTable table);
 static void Usage(void);
 
@@ -71,12 +71,13 @@ int main(int argc, char **argv) {
   // All's well, let's get to work:
   char* query[32];  // initialize query string (is this long enough?)
   int qlen = 0;  // length of the query (0 for now)
+  char* freebird;  // free this guy to eliminate valgrind issues
 
 
   // loop forever (until user quit, e.g. ctrl-c)
   while (1) {
     // Get query from user and parse into words
-    readQuery(query, &qlen);
+    freebird = readQuery(query, &qlen);
 
     // Process query against the index
     retlist = MIProcessQuery(index, (char **) query, qlen);
@@ -88,6 +89,7 @@ int main(int argc, char **argv) {
     }
 
     qlen = 0;  // reset
+    free(freebird);  // FREEEEEEBIRD needs to be freed
   }
 
   // Free our structs
@@ -97,7 +99,7 @@ int main(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 
-static void readQuery(char** query, int* qlen) {
+static char* readQuery(char** query, int* qlen) {
   int bufsize = 256;
   char *buf = (char *) malloc(bufsize);
   char *saveptr;
@@ -139,7 +141,7 @@ static void readQuery(char** query, int* qlen) {
     query[*qlen] = strtok_r(NULL, " ", &saveptr);
   }
 
-  return;
+  return buf;
 }
 
 static void printResults(LinkedList retlist, DocTable table) {
