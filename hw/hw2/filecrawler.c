@@ -178,7 +178,9 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
   // build the word hashtable out of the file.
 
   tab = BuildWordHT(fpath);
-
+  if (tab == NULL) {
+    return;
+  }
 
   // STEP 5.
   // Invoke the DTRegisterDocumentName() function in
@@ -189,10 +191,7 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
 
 
   // Loop through the hash table.
-  if (tab == NULL) {
-        printf("\n               TAB WAS NULL\n");
 
-  }
   it = HashTableMakeIterator(tab);
   while (NumElementsInHashTable(tab) > 0) {
     WordPositions *wp;
