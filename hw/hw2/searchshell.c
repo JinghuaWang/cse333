@@ -18,6 +18,8 @@
  *  along with 333proj.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+ #define _POSIX_C_SOURCE 1
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -115,7 +117,7 @@ static void readQuery(char** query, int* qlen) {
   }
 
   // Get the first element and make sure it's valid
-  char * saveptr;
+  char * saveptr = NULL;
   query[0] = strtok_r(buf, " ", &saveptr);
   (*qlen)++;  // increment to next
 
