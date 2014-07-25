@@ -140,7 +140,7 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
 
   // Verify that the docID doesn't exist in the WordDocSet.
   res = LookupHashTable(wds->docIDs, docid, &hitkv);
-  Verify333(res == 0);
+  //Verify333(res == 0);
 
   // STEP 3.
   // Insert a new entry into the wds->docIDs hash table.
