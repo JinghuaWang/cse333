@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
   LinkedList retlist;
 
   // Intro message
-  prinf("Indexing '%s'\n", argv[1]);
+  printf("Indexing '%s'\n", argv[1]);
 
   // check for valid directory
   int retval = CrawlFileTree(argv[1], &table, &index);
@@ -107,7 +107,7 @@ static void readQuery(char** query, int* qlen) {
   // swap newline for end character (NECESSARY?)
   for (int i = 0; i < bufsize-1; i++) {
     if (buf[i] == '\n') {
-      text[i] = '\0';
+      buf[i] = '\0';
       break;
     }
   }
@@ -135,25 +135,27 @@ static void readQuery(char** query, int* qlen) {
     // increment qlen ptr
     (*qlen)++;
   }
-  return buf;
+
+  return;
 }
 
 static void printResults(LinkedList retlist, DocTable table) {
   SearchResult *sr;
-  uint64_t docid, rank;
-
+  int ne = NumElementsInLinkedList(retlist);
   LLIter llit = LLMakeIterator(retlist, 0);
   
   for (int i = 0; i < ne; i++) {
     LLIteratorGetPayload(llit, (LLPayload_t *) &sr);
     
-    printf("  %s (%u)\n", DTLookupDocID(doctable, sr->docid), sr->rank);
+    printf("  %s (%u)\n", DTLookupDocID(table, sr->docid), sr->rank);
 
     LLIteratorDelete(llit, &free);
   }
 
   LLIteratorFree(llit);
   free(retlist);
+
+  return;
 }
 
 static void Usage(void) {
