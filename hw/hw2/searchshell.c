@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
 
 static void readQuery(char** query, int* qlen) {
   size_t bufsize = 256;
-  char *buf = (char *) malloc(bufsize);
+  char *buf[bufsize] = (char *) malloc(bufsize);
 
   // Prompt user for input
   printf("enter query:\n");
@@ -121,12 +121,12 @@ static void readQuery(char** query, int* qlen) {
   (*qlen)++;  // increment to next
 
   // if NULL input, quit
-  if (query[*qlen] == NULL) {
+  if (query[0] == NULL) {
     fprintf(stderr, "Not a valid input\n");
     Usage();
   }
   // Also check for '\n' and '\0' (otherwise segfault)
-  if (query[*qlen] == '\n' || query[*qlen] == '\0') {
+  if (query[0] == '\n' || query[0] == '\0') {
     fprintf(stderr, "Not a valid input\n");
     Usage();
   }
