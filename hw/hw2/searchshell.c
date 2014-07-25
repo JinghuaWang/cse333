@@ -115,13 +115,9 @@ static void readQuery(char** query, int* qlen) {
       break;
     }
   }
-  printf("End of 118\n\n");
 
   // Get the first element and make sure it's valid
   query[*qlen] = strtok_r(buf, " ", &saveptr);
-
-  printf("End of 123\n\n");
-
 
   // if NULL input, quit
   if (query[0] == NULL) {
@@ -133,8 +129,6 @@ static void readQuery(char** query, int* qlen) {
   //   fprintf(stderr, "Not a valid input\n");
   //   Usage();
   // }
-
-    printf("End of 137\n\n");
 
   // Once we're past query[0], loop through input
   // while (1) {
@@ -151,11 +145,11 @@ static void readQuery(char** query, int* qlen) {
   // }
   
   while(query[*qlen] = strtok_r(buf, " ", &saveptr)) {
+    printf("QUERY VALUE IS %s\n\n", query[*qlen]);
     (*qlen)++;
     buf = saveptr;
   }
 
-  printf("End of readQuery\n\n");
   return;
 }
 
