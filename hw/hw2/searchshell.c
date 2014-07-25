@@ -144,6 +144,7 @@ static void readQuery(char** query, int* qlen) {
     }
   }
   
+  printf("End of readQuery\n\n");
   return;
 }
 
