@@ -118,7 +118,6 @@ static void readQuery(char** query, int* qlen) {
 
   // Get the first element and make sure it's valid
   query[*qlen] = strtok_r(buf, " ", &saveptr);
-  (*qlen)++;  // increment to next
 
   // if NULL input, quit
   if (query[0] == NULL) {
@@ -137,14 +136,15 @@ static void readQuery(char** query, int* qlen) {
     if (query[*qlen] == NULL) {
       break;
     } else {
-      // if valid, grab the next query
+      // if valid, increment qlen ptr
+      (*qlen)++;
+      
+      // grab the next query
       query[*qlen] = strtok_r(buf, " ", &saveptr);
     }
-
-    // increment qlen ptr
-    (*qlen)++;
   }
-
+  
+  free(buf);
   return;
 }
 
