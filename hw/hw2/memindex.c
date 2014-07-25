@@ -127,6 +127,8 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     Verify333(res == 1);
 
 
+    return 1;
+
   } else {
     // Yes, this word already exists in the inverted index.
     // So, there's no need to insert it again; we can go
