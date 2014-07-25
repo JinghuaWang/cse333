@@ -96,6 +96,10 @@ static void HandleDir(char *dirpath, DIR *d, DocTable *doctable,
     // 3 readdir_r).  If we hit the end of the directory, return back
     // out of this function.
 
+    res = readdir_r(d, &entry, &dirent);
+    Verify333(res == 0);
+
+    if (dirent == NULL) return;  // end of directory, return out of function
 
     // STEP 2.
     // If the directory entry is named "." or "..", ignore it.  (Use the C
@@ -103,6 +107,9 @@ static void HandleDir(char *dirpath, DIR *d, DocTable *doctable,
     // loop.) You can find out the name of the directory entry through the
     // "d_name" field of the struct dirent returned by readdir(), and you can
     // use strcmp() to compare it to "." or ".."
+
+    if (strcmp(dirent->d_name, ".") == 0) continue;
+    if (strcmp(dirent->d_name, "..") == 0) continue;
 
 
     // We need to append the name of the file to the name of the directory
@@ -137,6 +144,19 @@ static void HandleDir(char *dirpath, DIR *d, DocTable *doctable,
       // "closedir()" system call when the recursive HandleDir() returns to
       // close the opened directory.
 
+      // if it's regular, call HandleFile
+      if (S_ISREG(nextstat.st_mode)) {
+        HandleFile(newfile, doctable, index);
+      }
+
+      if (S_ISDIR(nextstat.st_mode)) {
+        DIR * dir = opendir(newfile);
+
+        if (dir == NULL) continue;  // check
+
+        HandleDir(newfile, dir, doctable, index);
+        closedir(dir);
+      }
     }
 
     // Done with this file.  Fall back up to the next
@@ -154,11 +174,15 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
   // Invoke the BuildWordHT() function in fileparser.h/c to
   // build the word hashtable out of the file.
 
+  tab = BuildWordHT(fpath);
+
 
   // STEP 5.
   // Invoke the DTRegisterDocumentName() function in
   // doctable.h/c to register the new file with the
   // doctable.
+
+  docID = DTRegisterDocumentName(*doctable, fpath);
 
 
   // Loop through the hash table.
@@ -173,6 +197,13 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
     // to add the word, document ID, and positions linked list into the
     // inverted index.
 
+    // extract next WordPosition from HT
+    int retval = HTIteratorDelete(it, &kv);
+    Verify333(retval != 0);
+
+    // Add word, document ID, and positions LL into inverted index
+    wp = kv.value;
+    MIAddPostingList(*index, wp->word, docID, wp->positions);
 
     // Since we've transferred ownership of the memory associated with both
     // the "word" and "positions" field of this WordPositions structure, and
