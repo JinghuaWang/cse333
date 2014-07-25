@@ -69,14 +69,11 @@ int CrawlFileTree(char *rootdir, DocTable *doctable, MemIndex *index) {
 
   // Since we're able to open the directory, go ahead and allocate space for
   // the doctable and memindex.
-    printf("\n made it to 72\n");
 
   *doctable = AllocateDocTable();
   Verify333(*doctable != NULL);
   *index = AllocateMemIndex();
   Verify333(*index != NULL);
-    printf("\n made it to 78\n");
-
 
   // Begin the recursive handling of the directory.
   HandleDir(rootdir, rd, doctable, index);
@@ -175,6 +172,8 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
   HashTable tab = NULL;
   DocID_t docID;
   HTIter it;
+
+    printf("\n made it to handlefile\n");
 
   // STEP 4.
   // Invoke the BuildWordHT() function in fileparser.h/c to
