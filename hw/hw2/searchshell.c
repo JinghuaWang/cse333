@@ -60,6 +60,8 @@ int main(int argc, char **argv) {
 
   // check for valid directory
   int retval = CrawlFileTree(argv[1], &table, &index);
+
+  printf("\n made it here\n");
   if (retval == 0) {  // not valid
     printf("Path '%s' is not indexable\n", argv[1]);  // error message
     Usage();
