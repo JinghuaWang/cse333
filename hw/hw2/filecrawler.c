@@ -18,6 +18,8 @@
  *  along with 333proj.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _POSIX_C_SOURCE 1;
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
