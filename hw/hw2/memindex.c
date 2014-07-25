@@ -111,7 +111,7 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     wds->word = word;
 
     // (2) allocate a new hashtable for the docID->positions mapping
-    wds->docIDs = AllocateHashTable(40);
+    wds->docIDs = AllocateHashTable(32);
     Verify333(wds->docIDs != NULL);
 
     // (3) insert that hashtable into the WordDocSet
@@ -151,7 +151,6 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
   kv.key = docid;
   res = InsertHashTable(wds->docIDs, kv, &hitkv);
   Verify333(res == 1);
-
 
   return 1;
 }
