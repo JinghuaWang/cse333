@@ -103,15 +103,12 @@ DocID_t DTRegisterDocumentName(DocTable table, char *docname) {
   // do the insert.
   
   // Set up key/value
-  oldkv.key = NULL;
-  kv.key = table->*docid;
-
-  oldkv.value = NULL;
+  kv.key = *docid;
   kv.value = doccopy;
 
   // do the insert
   retval = InsertHashTable(table->docid_to_docname, kv, &oldkv)
-  Verify333(retval != 0 && retval != 2);
+  Verify333(retval != 0);
 
   // STEP 4.
   // Set up the key/value for the docname_to_docid mapping, and
@@ -123,7 +120,7 @@ DocID_t DTRegisterDocumentName(DocTable table, char *docname) {
 
   // do the insert
   retval = InsertHashTable(table->docname_to_docid, kv, &oldkv);
-  Verify333(retval != 0 && retval != 2);
+  Verify333(retval != 0);
 
   return *docid;
 }
