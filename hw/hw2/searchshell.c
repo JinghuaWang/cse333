@@ -98,9 +98,9 @@ int main(int argc, char **argv) {
 }
 
 static void readQuery(char** query, int* qlen) {
-  size_t bufsize = 256;
+  int bufsize = 256;
   char *buf = (char *) malloc(bufsize);
-  char *saveptr = NULL;
+  char *saveptr;
 
   // Prompt user for input
   printf("enter query:\n");
