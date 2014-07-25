@@ -207,7 +207,7 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
     Verify333(sr != NULL);
 
     // initialize SearchResult structure with docID and initial computed rank
-    sr->docid = key;
+    sr->docid = kv.key;
     sr->rank = NumElementsInLinkedList(kv.value);
 
     // append SearchResult structure onto retlist
