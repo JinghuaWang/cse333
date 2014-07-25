@@ -104,11 +104,13 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     //       index (i.e., into the "index" table).
 
     // malloc and prepare new WordDocSet struct
-    wds = (WordDocSet *) malloc(sizeof(WordDocSet));
+    wds = malloc(sizeof(WordDocSet));
     Verify333(wds != NULL);
 
     // (1) insert the word into the WDS
-    wds->word = word;
+    wds->word = malloc(sizeof(char)*strlen(word));
+    Verify333(wds->word != NULL);
+    strcpy(wds->word, word);
 
     // (2) allocate a new hashtable for the docID->positions mapping
     wds->docIDs = AllocateHashTable(128);
@@ -125,6 +127,8 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     kv.key = wordkey;
     res = InsertHashTable(index, kv, &hitkv);
     Verify333(res == 1);
+
+    return 1;
 
   } else {
     // Yes, this word already exists in the inverted index.
