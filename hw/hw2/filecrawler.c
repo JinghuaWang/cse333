@@ -173,8 +173,6 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
   DocID_t docID;
   HTIter it;
 
-    printf("\n made it to handlefile\n");
-
   // STEP 4.
   // Invoke the BuildWordHT() function in fileparser.h/c to
   // build the word hashtable out of the file.
@@ -191,6 +189,10 @@ static void HandleFile(char *fpath, DocTable *doctable, MemIndex *index) {
 
 
   // Loop through the hash table.
+  if (tab == NULL) {
+        printf("\n               TAB WAS NULL\n");
+
+  }
   it = HashTableMakeIterator(tab);
   while (NumElementsInHashTable(tab) > 0) {
     WordPositions *wp;
