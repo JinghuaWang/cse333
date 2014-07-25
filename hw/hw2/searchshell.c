@@ -144,7 +144,6 @@ static void readQuery(char** query, int* qlen) {
     }
   }
   
-  free(buf);
   return;
 }
 
