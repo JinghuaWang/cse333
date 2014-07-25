@@ -100,6 +100,7 @@ int main(int argc, char **argv) {
 static void readQuery(char** query, int* qlen) {
   size_t bufsize = 256;
   char *buf = (char *) malloc(bufsize);
+  char *saveptr = NULL;
 
   // Prompt user for input
   printf("enter query:\n");
@@ -116,9 +117,7 @@ static void readQuery(char** query, int* qlen) {
   }
 
   // Get the first element and make sure it's valid
-  char * saveptr = NULL;
-  query[0] = strtok_r(buf, " ", &saveptr);
-  (*qlen)++;  // increment to next
+  query[*qlen] = strtok_r(buf, " ", &saveptr);
 
   // if NULL input, quit
   if (query[0] == NULL) {
