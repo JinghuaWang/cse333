@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
 
 static void readQuery(char** query, int* qlen) {
   size_t bufsize = 256;
-  char *buf[bufsize] = (char *) malloc(bufsize);
+  char *buf = (char *) malloc(bufsize);
 
   // Prompt user for input
   printf("enter query:\n");
