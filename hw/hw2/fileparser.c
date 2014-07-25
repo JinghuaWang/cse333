@@ -299,7 +299,7 @@ static void AddToHashtable(HashTable tab, char *word, DocPositionOffset_t pos) {
     Verify333(newstr != NULL);
     wp->word = newstr;
     // strcpy(wp->word, word);  // clint.py no likey
-    snprintf(newstr, len, word);  // "almost always, snprintf is better..."
+    snprintf(newstr, strlen(word)+1, word);  // "almost always, snprintf is better..."
 
     wp->positions = AllocateLinkedList();
     Verify333(wp->positions != NULL);
