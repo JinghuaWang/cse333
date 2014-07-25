@@ -115,9 +115,13 @@ static void readQuery(char** query, int* qlen) {
       break;
     }
   }
+  printf("End of 118\n\n");
 
   // Get the first element and make sure it's valid
   query[*qlen] = strtok_r(buf, " ", &saveptr);
+
+  printf("End of 123\n\n");
+
 
   // if NULL input, quit
   if (query[0] == NULL) {
