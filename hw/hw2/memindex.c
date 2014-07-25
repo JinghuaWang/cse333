@@ -108,9 +108,7 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     Verify333(wds != NULL);
 
     // (1) insert the word into the WDS
-    wds->word = malloc(sizeof(char)*strlen(word));
-    Verify333(wds->word != NULL);
-    strcpy(wds->word, word);
+    wds->word = word;
 
     // (2) allocate a new hashtable for the docID->positions mapping
     wds->docIDs = AllocateHashTable(8);
