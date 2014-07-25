@@ -115,19 +115,16 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     Verify333(wds->docIDs != NULL);
 
     // (3) insert that hashtable into the WordDocSet
-    kv.value = positions;
-    kv.key = docid;
-    res = InsertHashTable(wds->docIDs, kv, &hitkv);
-    Verify333(res == 1);
+    // kv.value = positions;
+    // kv.key = docid;
+    // res = InsertHashTable(wds->docIDs, kv, &hitkv);
+    // Verify333(res == 1);
 
     // (4) insert the new WDS into the inverted index
     kv.value = wds;
     kv.key = wordkey;
     res = InsertHashTable(index, kv, &hitkv);
     Verify333(res == 1);
-
-
-    return 1;
 
   } else {
     // Yes, this word already exists in the inverted index.
