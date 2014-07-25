@@ -161,14 +161,13 @@ static void readQuery(char** query, int* qlen) {
 
 static void printResults(LinkedList retlist, DocTable table) {
   SearchResult *sr;
-  int eq = 6;
   int ne = NumElementsInLinkedList(retlist);
   LLIter llit = LLMakeIterator(retlist, 0);
   
   for (int i = 0; i < ne; i++) {
     LLIteratorGetPayload(llit, (LLPayload_t *) &sr);
     
-    printf("  %s (%u)\n", DTLookupDocID(table, sr->docid), sr->rank/eq);
+    printf("  %s (%u)\n", DTLookupDocID(table, sr->docid), sr->rank);
 
     LLIteratorDelete(llit, &free);
   }
