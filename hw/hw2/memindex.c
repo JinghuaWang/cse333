@@ -111,14 +111,14 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     wds->word = word;
 
     // (2) allocate a new hashtable for the docID->positions mapping
-    wds->docIDs = AllocateHashTable(32);
+    wds->docIDs = AllocateHashTable(128);
     Verify333(wds->docIDs != NULL);
 
     // (3) insert that hashtable into the WordDocSet
-    kv.value = positions;
-    kv.key = docid;
-    res = InsertHashTable(wds->docIDs, kv, &hitkv);
-    Verify333(res == 1);
+    // kv.value = positions;
+    // kv.key = docid;
+    // res = InsertHashTable(wds->docIDs, kv, &hitkv);
+    // Verify333(res == 1);
 
     // (4) insert the new WDS into the inverted index
     kv.value = wds;
@@ -191,15 +191,18 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
 
   // if no matching documents, free retlist and return NULL
   if (res == 0) {
-    free(retlist);
+    FreeLinkedList(retlist, &free);
     return NULL;
   }
 
-  wds = kv.value;
+  wds = (WordDocSet *) kv.value;
   HTIter iter = HashTableMakeIterator(wds->docIDs);
   Verify333(iter != NULL);
 
   while (!HTIteratorPastEnd(iter)) {
+    res = HTIteratorGet(iter, &kv);
+    Verify333(res == 1);
+
     // for each document that matches, allocated a SearchResult structure
     SearchResult *sr = (SearchResult *) malloc(sizeof(SearchResult));
     Verify333(sr != NULL);
@@ -242,7 +245,7 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
 
     // no matches, free retlist and return NULL
     if (res == 0) {
-      free(retlist);
+      FreeLinkedList(retlist, &free);
       return NULL;
     }
 
@@ -268,13 +271,14 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
 
       SearchResult *newsr;
       LLIteratorGetPayload(llit, (LLPayload_t *) &newsr);
+      HTKeyValue temp;
 
-      res = LookupHashTable(wds->docIDs, newsr->docid, &kv);
+      res = LookupHashTable(wds->docIDs, newsr->docid, &temp);
       Verify333(res != -1);
 
       // if it's in set of matches, leave it in search and update its rank
       if (res == 1) {
-        newsr->rank += NumElementsInLinkedList(kv.value);
+        newsr->rank += NumElementsInLinkedList(temp.value);
         LLIteratorNext(llit);
       }
 
