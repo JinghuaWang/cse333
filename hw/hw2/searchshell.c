@@ -118,6 +118,7 @@ static void readQuery(char** query, int* qlen) {
 
   // Get the first element and make sure it's valid
   query[*qlen] = strtok_r(buf, " ", &saveptr);
+  (*qlen)++;  // increment to next
 
   // if NULL input, quit
   if (query[0] == NULL) {
