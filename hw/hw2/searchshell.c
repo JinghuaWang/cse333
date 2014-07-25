@@ -137,19 +137,24 @@ static void readQuery(char** query, int* qlen) {
     printf("End of 137\n\n");
 
   // Once we're past query[0], loop through input
-  while (1) {
-    // Check for null
-    if (query[*qlen] == NULL) {
-      break;
-    }
+  // while (1) {
+  //   // Check for null
+  //   if (query[*qlen] == NULL) {
+  //     break;
+  //   }
 
-    // if valid, increment qlen ptr
-    (*qlen)++;
+  //   // if valid, increment qlen ptr
+  //   (*qlen)++;
     
-    // grab the next query
-    query[*qlen] = strtok_r(buf, " ", &saveptr);
-  }
+  //   // grab the next query
+  //   query[*qlen] = strtok_r(buf, " ", &saveptr);
+  // }
   
+  while(query[*qlen] = strtok_r(buf, " ", &saveptr)) {
+    (*qlen)++;
+    buf = saveptr;
+  }
+
   printf("End of readQuery\n\n");
   return;
 }
