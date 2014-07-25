@@ -18,7 +18,7 @@
  *  along with 333proj.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- #define _POSIX_C_SOURCE 1
+#define _POSIX_C_SOURCE 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -124,11 +124,6 @@ static void readQuery(char** query, int* qlen) {
     fprintf(stderr, "Not a valid input\n");
     Usage();
   }
-  // // Also check for '\n' and '\0' (otherwise segfault)
-  // if (query[0] == '\n' || query[0] == '\0') {
-  //   fprintf(stderr, "Not a valid input\n");
-  //   Usage();
-  // }
 
   // Once we're past query[0], loop through input
   while (1) {
@@ -139,7 +134,7 @@ static void readQuery(char** query, int* qlen) {
 
     // if valid, increment qlen ptr
     (*qlen)++;
-    
+
     // grab the next query
     query[*qlen] = strtok_r(NULL, " ", &saveptr);
   }
@@ -151,10 +146,10 @@ static void printResults(LinkedList retlist, DocTable table) {
   SearchResult *sr;
   int ne = NumElementsInLinkedList(retlist);
   LLIter llit = LLMakeIterator(retlist, 0);
-  
+
   for (int i = 0; i < ne; i++) {
     LLIteratorGetPayload(llit, (LLPayload_t *) &sr);
-    
+
     printf("  %s (%u)\n", DTLookupDocID(table, sr->docid), sr->rank);
 
     LLIteratorDelete(llit, &free);
