@@ -131,23 +131,17 @@ static void readQuery(char** query, int* qlen) {
   // }
 
   // Once we're past query[0], loop through input
-  // while (1) {
-  //   // Check for null
-  //   if (query[*qlen] == NULL) {
-  //     break;
-  //   }
+  while (1) {
+    // Check for null
+    if (query[*qlen] == NULL) {
+      break;
+    }
 
-  //   // if valid, increment qlen ptr
-  //   (*qlen)++;
-    
-  //   // grab the next query
-  //   query[*qlen] = strtok_r(buf, " ", &saveptr);
-  // }
-  
-  while(query[*qlen] = strtok_r(buf, " ", &saveptr)) {
-    printf("QUERY VALUE IS %s\n\n", query[*qlen]);
+    // if valid, increment qlen ptr
     (*qlen)++;
-    buf = saveptr;
+    
+    // grab the next query
+    query[*qlen] = strtok_r(NULL, " ", &saveptr);
   }
 
   return;
