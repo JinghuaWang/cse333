@@ -113,7 +113,7 @@ int MIAddPostingList(MemIndex index, char *word, DocID_t docid,
     strcpy(wds->word, word);
 
     // (2) allocate a new hashtable for the docID->positions mapping
-    wds->docIDs = AllocateHashTable(128);
+    wds->docIDs = AllocateHashTable(16);
     Verify333(wds->docIDs != NULL);
 
     // (3) insert that hashtable into the WordDocSet
@@ -196,7 +196,6 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
   // if no matching documents, free retlist and return NULL
   if (res == 0) {
     FreeLinkedList(retlist, &free);
-    printf("\nYou are going out at number: 1\n");
     return NULL;
   }
 
@@ -251,7 +250,6 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
     // no matches, free retlist and return NULL
     if (res == 0) {
       FreeLinkedList(retlist, &free);
-          printf("\nYou are going out at number: 2\n");
       return NULL;
     }
 
@@ -269,7 +267,9 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
     llit = LLMakeIterator(retlist, 0);
     ne = NumElementsInLinkedList(retlist);
 
-    wds = kv.value;
+    printf("\n\nne == %d", ne);
+
+    wds = (WordDocSet *) kv.value;
 
     for (j = 0; j < ne; j++) {
       // iterate through the docIDs in current search result list
@@ -277,19 +277,19 @@ LinkedList MIProcessQuery(MemIndex index, char *query[], uint8_t qlen) {
 
       SearchResult *newsr;
       LLIteratorGetPayload(llit, (LLPayload_t *) &newsr);
-      HTKeyValue temp;
+      HTKeyValue tempkey;
 
-      res = LookupHashTable(wds->docIDs, newsr->docid, &temp);
+      res = LookupHashTable(wds->docIDs, newsr->docid, &tempkey);
       Verify333(res != -1);
 
       // if it's in set of matches, leave it in search and update its rank
       if (res == 1) {
-        newsr->rank += NumElementsInLinkedList(temp.value);
+        newsr->rank += NumElementsInLinkedList(tempkey.value);
         LLIteratorNext(llit);
+      } else {
+        // if it isn't, delete the docID from search result list
+        LLIteratorDelete(llit, &free);
       }
-
-      // if it isn't, delete the docID from search result list
-      LLIteratorDelete(llit, free);
     }
     LLIteratorFree(llit);
   }
