@@ -122,6 +122,7 @@ static void readQuery(char** query, int* qlen) {
   // if NULL input, notify user
   if (query[0] == NULL) {
     printf("Not a valid input (ctrl-C to quit)\n");
+    exit(-1);
   }
 
   // Once we're past query[0], loop through input
