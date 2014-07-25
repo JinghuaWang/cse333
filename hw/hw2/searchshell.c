@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
 
 
   // loop forever (until user quit, e.g. ctrl-c)
-  //while (1) {
+  while (1) {
     // Get query from user and parse into words
     freebird = readQuery(query, &qlen);
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 
     qlen = 0;  // reset
     free(freebird);  // FREEEEEEBIRD needs to be freed
-  //}
+  }
 
   // Free our structs
   FreeMemIndex(index);
