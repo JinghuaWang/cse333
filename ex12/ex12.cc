@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     cout << numbers[i] << endl;
   }
 
-  exit(EXIT_SUCCESS);
+  return 0;
 }
 
 template <class T> T ReadValue(istream& in) {
