@@ -29,17 +29,18 @@
 
 int main(int argc, char **argv) {
   // Allocate an integer on the heap, initialize to value 5.
-  //std::unique_ptr<int> x(new int(5));
-  int *x = new int(5);
+  //int *x = new int(5);  // VALGRIND ERROR
+  std::unique_ptr<int> x(new int(5));
   std::cout << "*x is: " << *x << std::endl;
 
   // Allocate a vector of integers on the heap, add some values to
   // that vector, sort the vector, print the values.
   //std::unique_ptr<vector<int>> v(new std::vector<int>);
-  std::vector<int> *v = new std::vector<int>;
+  std::vector<int> *v = new std::vector<int>;  // VALGRIND ERROR 24 direct, 16 indirect
+  // std::vector<unique_ptr<int>> v = new std::vector<unique_ptr
   v->push_back(5);
   v->push_back(9);
-  v->push_back(7);
+  v->push_back(7);  // VALGRIND ERROR (indirectly lost)
   std::sort(v->begin(), v->end());
   std::cout << "sorted v: ";
   for (int &el : *v) {
@@ -50,9 +51,9 @@ int main(int argc, char **argv) {
   // Allocate a vector of (integer pointers) on the stack, add some
   // values to the vector from the heap, print the values.
   std::vector<int*> v2;
-  v2.push_back(new int(5));
-  v2.push_back(new int(9));
-  v2.push_back(new int(7));
+  v2.push_back(new int(5));  // VALGRIND ERROR
+  v2.push_back(new int(9));  // VALGRIND ERROR
+  v2.push_back(new int(7));  // VALGRIND ERROR
   std::cout << "unsorted v2: ";
   for (int *el : v2) {
     std::cout << *el << " ";
