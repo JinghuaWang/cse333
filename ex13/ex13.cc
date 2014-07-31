@@ -52,9 +52,9 @@ int main(int argc, char **argv) {
   // values to the vector from the heap, print the values.
   // std::vector<int*> v2;  // OLD CODE
   std::vector<std::unique_ptr<int>> v2;
-  v2.push_back(std::unique_ptr<int>(new int(5)));  // VALGRIND ERROR
-  v2.push_back(std::unique_ptr<int>(new int(9)));  // VALGRIND ERROR
-  v2.push_back(std::unique_ptr<int>(new int(7)));  // VALGRIND ERROR
+  v2.push_back(std::unique_ptr<int>(new int(5)));
+  v2.push_back(std::unique_ptr<int>(new int(9)));
+  v2.push_back(std::unique_ptr<int>(new int(7)));
   std::cout << "unsorted v2: ";
   for (auto const &el : v2) {
     std::cout << *el << " ";
