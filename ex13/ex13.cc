@@ -1,6 +1,6 @@
 /*
  * Copyright 2012 Steven Gribble
- * ex12.cc
+ * ex13.cc
  * Name: Grant Neubauer
  * Number: 1411339
  * Email: grantn2@uw.edu
