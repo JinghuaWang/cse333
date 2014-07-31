@@ -26,6 +26,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 int main(int argc, char **argv) {
   // Allocate an integer on the heap, initialize to value 5.
