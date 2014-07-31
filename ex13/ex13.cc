@@ -30,14 +30,14 @@
 
 int main(int argc, char **argv) {
   // Allocate an integer on the heap, initialize to value 5.
-  //int *x = new int(5);  // VALGRIND ERROR
+  // int *x = new int(5);  // OLD CODE
   std::unique_ptr<int> x(new int(5));
   std::cout << "*x is: " << *x << std::endl;
 
   // Allocate a vector of integers on the heap, add some values to
   // that vector, sort the vector, print the values.
-  //std::unique_ptr<vector<int>> v(new std::vector<int>);
-  std::vector<int> *v = new std::vector<int>;  // VALGRIND ERROR 24 direct, 16 indirect
+  // std::vector<int> *v = new std::vector<int>;  // VALGRIND ERROR 24 direct, 16 indirect
+  std::unique_ptr<std::vector<int>> v(new std::vector<int>);
   // std::vector<unique_ptr<int>> v = new std::vector<unique_ptr
   v->push_back(5);
   v->push_back(9);
