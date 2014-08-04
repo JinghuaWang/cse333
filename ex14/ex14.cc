@@ -39,5 +39,12 @@ int main() {
   dist = pol->Distance(*pol2);
   cout << "Polar Distance = " << dist << endl;
 
+  // clean up
+  delete cart;
+  delete cart2;
+  delete pol;
+  delete pol2;
+
+  // return success
   return 0;
 }
