@@ -25,6 +25,9 @@ class Polar : public Coordinate {
   // Return string print-out
   virtual string ToString() const;
 
+  // Destructor
+  virtual ~Polar() {}
+
  private:
   double radius_, angle_;
 };

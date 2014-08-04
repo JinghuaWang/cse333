@@ -15,7 +15,6 @@ using namespace std;
 
 class Coordinate {
  public:
- 	virtual ~Coordinate() {};
   virtual string ToString() const =0;
 };
 

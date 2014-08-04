@@ -25,6 +25,9 @@ class Cartesian : public Coordinate {
   // Return string print out
   virtual string ToString() const;
 
+  // Destructor
+  virtual ~Cartesian() {}
+
  private:
   double x_, y_;
 };
