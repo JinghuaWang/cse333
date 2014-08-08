@@ -262,7 +262,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     	return 0;
     }
 
-    total += sizeof(docid_element_position);
+    retval += sizeof(docid_element_position);
 
     // Iterate to the next position.
     LLIteratorNext(it);
@@ -369,7 +369,7 @@ static HWSize_t WriteHeader(FILE *f,
 
   for (HWSize_t i = 0; i < cslen; i++) {
   	fread(buf, 1, 1, f);
-  	crcobj.FoldByteIntoCRC(*((uint8_t *)tmp));
+  	crcobj.FoldByteIntoCRC(*((uint8_t *)buf));
   }
   delete buf;
   header.checksum = crcobj.GetFinalCRC();
