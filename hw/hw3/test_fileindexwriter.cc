@@ -43,8 +43,6 @@ TEST_F(Test_FileIndexWriter, TestFileIndexWrite) {
   HWSize_t res = WriteIndex(mi_, dt_, fname.c_str());
   std::cout << "             " <<
     "...done writing." << std::endl;
-  unlink(fname.c_str());
-  perror("\n\n\nHERE: ");
   ASSERT_EQ(unlink(fname.c_str()), 0);
   ASSERT_LT((HWSize_t) 100000, res);
 

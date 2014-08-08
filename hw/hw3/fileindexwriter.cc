@@ -145,6 +145,7 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
 
   // Clean up and return the total amount written.
   fclose(f);
+  perror("\n\nfclose(f) on this hizzouse");
   return filesize;
 }
 
