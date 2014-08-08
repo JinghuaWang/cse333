@@ -545,27 +545,23 @@ static HWSize_t WriteHashTable(FILE *f,
   // Be sure to handle the corner case where the bucket's chain is
   // empty.  For that case, you still have to write a "bucket_rec"
   // record for the bucket, but you won't write a "bucket".
+  HWSize_t retval_br, retval_b;
   for (i = 0; i < ht->num_buckets; i++) {
     // MISSING:
 
     LinkedList li = (ht->buckets)[i];
 
-    res = WriteBucketRecord(f, li, next_bucket_rec_offset, 
+    retval_br = WriteBucketRecord(f, li, next_bucket_rec_offset, 
     	                                        next_bucket_offset);
 
-    if (res == 0)
-    	return 0;
-
     if (li != NULL) {
-    	res = WriteBucket(f, li, next_bucket_offset, fn);
-      if (res == 0)
-      	return 0;
+    	retval_b = WriteBucket(f, li, next_bucket_offset, fn);
     } else {
-    	res = 0;
+    	retval_b = 0;
     }
 
-    next_bucket_rec_offset += sizeof(bucket_rec);
-    next_bucket_offset += res;
+    next_bucket_rec_offset += retval_br;
+    next_bucket_offset += retval_b;
   }
 
   // Calculate and return the total number of bytes written.
