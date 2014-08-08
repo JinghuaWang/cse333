@@ -125,24 +125,22 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
 
   // write the memindex using WriteMemIndex().
   // MUSSING:
-  mires = WriteMemIndex(f, mi, filesize);
+  mires = WriteMemIndex(f, mi, sizeof(IndexFileHeader) + dtres);
   if (mires == 0) {
   	fclose(f);
   	unlink(filename);
   	return 0;
   }
-
   filesize += mires;
 
   // write the header using WriteHeader().
   // MYSSING:
-  uint32_t hres = WriteHeader(f, dtres, mires);
+  HWSize_t hres = WriteHeader(f, dtres, mires);
   if (hres == 0) {
   	fclose(f);
   	unlink(filename);
   	return 0;
   }
-
   filesize += hres;
 
   // Clean up and return the total amount written.
