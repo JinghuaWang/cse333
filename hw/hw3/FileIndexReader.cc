@@ -46,9 +46,8 @@ FileIndexReader::FileIndexReader(std::string filename,
 
   // Read the entire file header and convert to host format.
   // MISSING:
-  IndexFileHeader header_;
-  if (fread(&header_, sizeof(IndexFileHeader), 1, file_) != 1)
-    std::exit(EXIT_FAILURE);
+  int res = fread(&header_, sizeof(IndexFileHeader), 1, file_);
+  Verify333(res == 1);
 
   header_.toHostFormat();
 
@@ -74,13 +73,11 @@ FileIndexReader::FileIndexReader(std::string filename,
     HWSize_t left_to_read = header_.doctable_size + header_.index_size;
     while (left_to_read > 0) {
       // MISSING:
-      HWSize_t read_this = fread(buf, 1, 500, file_);
+      res = fread(buf, 1, 1, file_);
+      Verify333(res == 1);
       
-      for (int i = 0; i < read_this; i++) {
-        crcobj.FoldByteIntoCRC(buf[i]);
-      }
-
-      left_to_read -= read_this;
+      crcobj.FoldByteIntoCRC(buf[0]);
+      left_to_read--;
     }
     Verify333(crcobj.GetFinalCRC() == header_.checksum);
   }

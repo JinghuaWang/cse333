@@ -33,7 +33,13 @@ HashTableReader::HashTableReader(FILE *f, IndexFileOffset_t offset)
   // "num_buckets" field, and convert to host byte order.
 
   // MISSING:
-  
+  int res = fseek(file_, offset, SEEK_SET);
+  Verify333(res == 0);
+
+  res = fread(&header_, sizeof(BucketListHeader), 1, file_);
+  Verify333(res == 1);
+
+  header_.toHostFormat();
 }
 
 HashTableReader::~HashTableReader() {
@@ -88,9 +94,14 @@ HashTableReader::LookupElementPositions(HTKey_t hashKey) {
   bucket_rec b_rec;
   // MISSING:
 
+  int res = fseek(file_, bucketrec_offset, SEEK_SET);
+  Verify333(res == 0);
 
+  res = fread(&b_rec, sizeof(bucket_rec), 1, file_);
+  Verify333(res == 1);
 
-  
+  b_rec.toHostFormat();
+
 
   // This will be our returned list of element positions.
   std::list<IndexFileOffset_t> retval;
@@ -105,8 +116,19 @@ HashTableReader::LookupElementPositions(HTKey_t hashKey) {
   // correct order (i.e., append to the end of the list).
   // MISSING:
 
-  // if (fseek(file_, ))
+  res = fseek(file_, b_rec.bucket_position, SEEK_SET);
+  Verify333(res == 0);
 
+  for (int i = 0; i < b_rec.chain_len; i++) {
+    element_position_rec epr;
+    res = fread(&epr, sizeof(element_position_rec), 1, file_);
+    Verify333(res == 1);
+
+    epr.toHostFormat();
+
+    // make sure to append to the end of the list
+    retval.push_back(epr.element_position);
+  }
 
 
   // Return the list.
