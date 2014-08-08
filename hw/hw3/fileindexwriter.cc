@@ -124,7 +124,7 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   filesize += dtres;
 
   // write the memindex using WriteMemIndex().
-  // MUSSING:
+  // MYSSING:
   mires = WriteMemIndex(f, mi, sizeof(IndexFileHeader) + dtres);
   if (mires == 0) {
   	fclose(f);
@@ -157,7 +157,7 @@ static HWSize_t WriteDocidDocnameFn(FILE *f,
   uint16_t slen_ho;
 
   // determine the filename length
-  // MUSSING (change this assignment to the correct thing):
+  // MUSSING: (change this assignment to the correct thing):
   slen_ho = strlen((char *) kv->value);
 
   // fwrite() the docid from "kv".  Remember to convert to
@@ -174,14 +174,14 @@ static HWSize_t WriteDocidDocnameFn(FILE *f,
 
   // fwrite() the filename.  We don't write the null-terminator from
   // the string, just the characters.
-  // MUSSING:
+  // MYSSING:
   char *filename = (char *) kv->value;
   res = fwrite(filename, slen_ho, 1, f);
   if (res != 1)
   	return 0;
 
   // calculate and return the total amount written.
-  // MUSSING (change this return to the correct thing):
+  // MYSSING: (change this return to the correct thing):
   return 8 + 2 + slen_ho;
 }
 
@@ -259,7 +259,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
   LLIteratorFree(it);
 
   // Calculate and return the total amount of data written.
-  // MYSSING (fix this return value):
+  // MYSSING: (fix this return value):
   //return 0;
   return 8 + 4 + (4 * num_pos_ho);
 }
@@ -324,7 +324,7 @@ static HWSize_t WriteWordDocSetFn(FILE *f,
 
 
   // Calculate and return the total amount of data written.
-  // MUSSING (fix this return value):
+  // MUSSING: (fix this return value):
   return 2 + 4 + wordlen_ho + htlen_ho;
 }
 
@@ -356,9 +356,8 @@ static HWSize_t WriteHeader(FILE *f,
   // MUSSING:
 
   // Use fseek() to seek to the right location
-  if (fseek(f, 16, SEEK_SET) != 0) {   // 16??!?
+  if (fseek(f, sizeof(header), SEEK_SET) != 0)  // 16??!?
   	return 0;
-  }
 
   uint8_t tmp;
 
@@ -458,7 +457,7 @@ static HWSize_t WriteBucket(FILE *f,
       	return 0;
 
       res = fwrite(&nextelpos_no, 4, 1, f);
-      if (res != 0)
+      if (res != 1)
       	return 0;
 
       // Advance to the next element in the chain, tallying up our
