@@ -114,6 +114,8 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   if (f == nullptr)
     return 0;
 
+  printf("made it here*@@@@@@@@@@@@@@@@@@@@@@@@@");
+
   // write the document table using WriteDocTable().
   dtres = WriteDocTable(f, dt, sizeof(IndexFileHeader));
   if (dtres == 0) {
@@ -127,7 +129,6 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   // MISSING OK:
   mires = WriteMemIndex(f, mi, sizeof(IndexFileHeader) + dtres);
   if (mires == 0) {
-  	  	printf("\nMemIndex failed");
   	fclose(f);
   	unlink(filename);
   	return 0;
@@ -138,7 +139,6 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   // MISSING OK:
   hres = WriteHeader(f, dtres, mires);
   if (hres == 0) {
-  	printf("\nWrite Header failed");
   	fclose(f);
   	unlink(filename);
   	return 0;
