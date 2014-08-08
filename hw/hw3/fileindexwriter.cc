@@ -100,7 +100,7 @@ static HWSize_t WriteBucket(FILE *f,
                             write_element_fn fn);
 
 HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
-  HWSize_t filesize = 0, dtres, mires;
+  HWSize_t filesize = 0, dtres, mires, hres;
   FILE *f;
 
   // Do some sanity checking on the arguments we were given.
@@ -124,7 +124,7 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   filesize += dtres;
 
   // write the memindex using WriteMemIndex().
-  // MISSING:
+  // MISSING OK:
   mires = WriteMemIndex(f, mi, sizeof(IndexFileHeader) + dtres);
   if (mires == 0) {
   	fclose(f);
@@ -134,8 +134,8 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   filesize += mires;
 
   // write the header using WriteHeader().
-  // MISSING:
-  HWSize_t hres = WriteHeader(f, dtres, mires);
+  // MISSING OK:
+  hres = WriteHeader(f, dtres, mires);
   if (hres == 0) {
   	fclose(f);
   	unlink(filename);
@@ -159,7 +159,7 @@ static HWSize_t WriteDocidDocnameFn(FILE *f,
 
   // determine the filename length
   // MISSING: (change this assignment to the correct thing):
-  slen_ho = strlen((char *) kv->value);
+  slen_ho = strlen((const char *) kv->value);
 
   // fwrite() the docid from "kv".  Remember to convert to
   // disk format before writing.
@@ -177,8 +177,8 @@ static HWSize_t WriteDocidDocnameFn(FILE *f,
   // fwrite() the filename.  We don't write the null-terminator from
   // the string, just the characters.
   // MISSING:
-  char *filename = (char *) kv->value;
-  res = fwrite(filename, slen_ho, 1, f);
+
+  res = fwrite(kv->value, slen_ho, 1, f);
   if (res != 1)
   	return 0;
   retval += slen_ho;
@@ -262,6 +262,8 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     	return 0;
     }
 
+    total += sizeof(docid_element_position);
+
     // Iterate to the next position.
     LLIteratorNext(it);
   }
@@ -270,7 +272,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
   // Calculate and return the total amount of data written.
   // MISSING: (fix this return value):
   //return 0;
-  return retval + (num_pos_ho * sizeof(docid_element_position));
+  return retval;
 }
 
 // This write_element_fn is used to write a WordDocSet
@@ -363,12 +365,13 @@ static HWSize_t WriteHeader(FILE *f,
   if (fseek(f, sizeof(IndexFileHeader), SEEK_SET) != 0)
   	return 0;
 
-  uint8_t tmp;
+  char *buf = new char;
 
   for (HWSize_t i = 0; i < cslen; i++) {
-  	fread(&tmp, 1, 1, f);
-  	crcobj.FoldByteIntoCRC((const uint8_t) tmp);
+  	fread(buf, 1, 1, f);
+  	crcobj.FoldByteIntoCRC(*((uint8_t *)tmp));
   }
+  delete buf;
   header.checksum = crcobj.GetFinalCRC();
 
 
@@ -463,8 +466,9 @@ static HWSize_t WriteBucket(FILE *f,
       LLIteratorGetPayload(it, &payload);
       kv = (HTKeyValue*)payload;
 
-      // Write out the payload
-      if (fseek(f, offset + (j * sizeof(element_position_rec)), SEEK_SET) != 0) {
+      // Write out 
+      if (fseek(f, offset + (j * sizeof(element_position_rec)), 
+      	                                        SEEK_SET) != 0) {
       	LLIteratorFree(it);
       	return 0;
       }
