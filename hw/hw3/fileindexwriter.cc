@@ -127,6 +127,7 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   // MISSING OK:
   mires = WriteMemIndex(f, mi, sizeof(IndexFileHeader) + dtres);
   if (mires == 0) {
+  	  	printf("\nMemIndex failed");
   	fclose(f);
   	unlink(filename);
   	return 0;
@@ -137,6 +138,7 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   // MISSING OK:
   hres = WriteHeader(f, dtres, mires);
   if (hres == 0) {
+  	printf("\nWrite Header failed");
   	fclose(f);
   	unlink(filename);
   	return 0;
@@ -144,8 +146,8 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   filesize += hres;
 
   // Clean up and return the total amount written.
+  printf("\nMade it to fclose\n");
   fclose(f);
-  perror("\n\nfclose(f) on this hizzouse");
   return filesize;
 }
 
