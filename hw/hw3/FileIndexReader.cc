@@ -46,15 +46,15 @@ FileIndexReader::FileIndexReader(std::string filename,
 
   // Read the entire file header and convert to host format.
   // MISSING:
-  IndexFileHeader header_;
-  if (fread(&header_, sizeof(IndexFileHeader), 1, file_) != 1)
+  IndexFileHeader header;
+  if (fread(&header, sizeof(IndexFileHeader), 1, file_) != 1)
     std::exit(EXIT_FAILURE);
 
-  header_.toHostFormat();
+  header.toHostFormat();
 
   // Verify that the magic number is correct.  Crash if not.
   // MISSING:
-  Verify333(header_.magic_number == 0xCAFEF00D);
+  Verify333(header.magic_number == 0xCAFEF00D);
 
   // Make sure the index file's length lines up with the header fields.
   struct stat f_stat;
