@@ -123,8 +123,6 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   }
   filesize += dtres;
 
-  printf("made it here*@@@@@@@@@@@@@@@@@@@@@@@@@");  
-
   // write the memindex using WriteMemIndex().
   // MISSING OK:
   mires = WriteMemIndex(f, mi, sizeof(IndexFileHeader) + dtres);
@@ -134,9 +132,6 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   	return 0;
   }
   filesize += mires;
-
-  printf("made it here*BBBBBBBBBBBBBBBBBBBBBBB");
-
 
   // write the header using WriteHeader().
   // MISSING OK:
@@ -149,7 +144,6 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   filesize += hres;
 
   // Clean up and return the total amount written.
-  printf("\nMade it to fclose\n");
   fclose(f);
   return filesize;
 }
@@ -212,7 +206,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
                                        IndexFileOffset_t offset,
                                        HTKeyValue *kv) {
   size_t res;
-  size_t retval = 0;
+  HWSize_t retval = 0;
 
   // Extract the docID from the HTKeyValue.
   DocID_t docID_ho = (DocID_t)kv->key;
@@ -268,8 +262,6 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     	return 0;
     }
 
-    retval += sizeof(docid_element_position);
-
     // Iterate to the next position.
     LLIteratorNext(it);
   }
@@ -278,7 +270,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
   // Calculate and return the total amount of data written.
   // MISSING: (fix this return value):
   //return 0;
-  return retval;
+  return retval + (num_pos_ho * sizeof(docid_element_position));
 }
 
 // This write_element_fn is used to write a WordDocSet
