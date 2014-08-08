@@ -519,7 +519,7 @@ static HWSize_t WriteHashTable(FILE *f,
     
     // Write bucket_rec
     res = WriteBucketRecord(f, ht->buckets[i], next_bucket_rec_offset, next_bucket_offset);
-    Verify333(res != 8);
+    Verify333(res == 8);
 
     // Check for corner case
     if (NumElementsInLinkedList(ht->buckets[i]) > 0) {
