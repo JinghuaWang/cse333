@@ -365,7 +365,7 @@ static HWSize_t WriteHeader(FILE *f,
   	fread(&tmp, 1, 1, f);
   	crcobj.FoldByteIntoCRC((const uint8_t) tmp);
   }
-
+  header.checksum = crcobj.GetFinalCRC();
 
 
   // Write the header fields.  Be sure to convert the fields to

@@ -27,7 +27,7 @@
 
 namespace hw3 {
 
-TEST_F(Test_HashTableReader, TestHashTableReaderBasic) {
+TEST_F(Test_HashTableReader, Test_HashTableReaderTableReaderBasic) {
   // Open up the FILE * for ./unit_test_indices/enron.idx
   std::string idx("./unit_test_indices/enron.idx");
   FILE *f = fopen(idx.c_str(), "rb");
