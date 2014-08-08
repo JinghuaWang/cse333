@@ -367,7 +367,7 @@ static HWSize_t WriteHeader(FILE *f,
 
   for (HWSize_t i = 0; i < cslen; i++) {
   	fread(&tmp, 1, 1, f);
-  	crcobj.FoldByteIntoCRC((const uint8_t) tmp));
+  	crcobj.FoldByteIntoCRC((const uint8_t) tmp);
   }
   header.checksum = crcobj.GetFinalCRC();
 
