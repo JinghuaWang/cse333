@@ -243,12 +243,12 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     LLPayload_t payload = NULL;
     LLIteratorGetPayload(it, &payload);
 
-    DocPositionOffset_t pos = (DocPositionOffset_t *)(&payload);
+    DocPositionOffset_t *pos = (DocPositionOffset_t *)(&payload);
 
     // Truncate to 32 bits, then convert it to network order and write it out.
     // MISSING:
 
-    position = {pos};
+    position = {*pos};
     position.toDiskFormat();
 
     // Write it out
@@ -278,7 +278,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
 static HWSize_t WriteWordDocSetFn(FILE *f,
                                   IndexFileOffset_t offset,
                                   HTKeyValue *kv) {
-  sizeofe_t res;
+  size_t res;
   size_t retval = 0;
 
   // Extract the WordDocSet from the HTKeyValue.
