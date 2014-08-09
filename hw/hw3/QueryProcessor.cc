@@ -151,10 +151,10 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
         HWSize_t rank = 0;
         
         auto it_doc = result_vec.begin();
-        for (it_doc; it != result_vec.end(); it_doc++) {
+        for (it_doc ; it_doc != result_vec.end(); it_doc++) {
 
           // compare document names
-          if (it_vec.document_name.compare(it_doc->document_name) == 0) {
+          if (it_vec->document_name.compare(it_doc->document_name) == 0) {
             it_vec->rank += it_doc->rank;
             it_vec++;
           } else {
