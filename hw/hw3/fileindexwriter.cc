@@ -127,9 +127,9 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   // MISSING OK:
   mires = WriteMemIndex(f, mi, sizeof(IndexFileHeader) + dtres);
   if (mires == 0) {
-  	fclose(f);
-  	unlink(filename);
-  	return 0;
+    fclose(f);
+    unlink(filename);
+    return 0;
   }
   filesize += mires;
 
@@ -137,9 +137,9 @@ HWSize_t WriteIndex(MemIndex mi, DocTable dt, const char *filename) {
   // MISSING OK:
   hres = WriteHeader(f, dtres, mires);
   if (hres == 0) {
-  	fclose(f);
-  	unlink(filename);
-  	return 0;
+    fclose(f);
+    unlink(filename);
+    return 0;
   }
   filesize += hres;
 
@@ -180,7 +180,7 @@ static HWSize_t WriteDocidDocnameFn(FILE *f,
 
   res = fwrite(kv->value, slen_ho, 1, f);
   if (res != 1)
-  	return 0;
+    return 0;
   retval += slen_ho;
 
   // calculate and return the total amount written.
@@ -224,7 +224,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
   header.toDiskFormat();
 
   if (fseek(f, offset, SEEK_SET) != 0)
-  	return 0;  
+    return 0;
 
   res = fwrite(&header, sizeof(header), 1, f);
   if (res != 1)
@@ -254,12 +254,12 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     // Write it out
     
     if (fseek(f, retval + offset, SEEK_SET) != 0)
-    	return 0;
+      return 0;
 
     res = fwrite(&position, sizeof(position), 1, f);
     if (res != 1) {
-    	LLIteratorFree(it);
-    	return 0;
+      LLIteratorFree(it);
+      return 0;
     }
 
     // Iterate to the next position.
@@ -309,7 +309,7 @@ static HWSize_t WriteWordDocSetFn(FILE *f,
 
   // fseek() to offset
   if (fseek(f, offset, SEEK_SET) != 0) 
-  	return 0;
+    return 0;
 
   res = fwrite(&header, sizeof(header), 1, f);
   if (res != 1)
@@ -323,7 +323,7 @@ static HWSize_t WriteWordDocSetFn(FILE *f,
 
   res = fwrite(wds->word, wordlen_ho, 1, f);
   if (res != 1)
-  	return 0;
+    return 0;
 
   retval += wordlen_ho;
 
@@ -361,13 +361,13 @@ static HWSize_t WriteHeader(FILE *f,
 
   // Use fseek() to seek to the right location
   if (fseek(f, sizeof(IndexFileHeader), SEEK_SET) != 0)
-  	return 0;
+    return 0;
 
   char *buf = new char;
 
   for (HWSize_t i = 0; i < cslen; i++) {
-  	fread(buf, 1, 1, f);
-  	crcobj.FoldByteIntoCRC(*((uint8_t *)buf));
+    fread(buf, 1, 1, f);
+    crcobj.FoldByteIntoCRC(*((uint8_t *)buf));
   }
   delete buf;
   header.checksum = crcobj.GetFinalCRC();
@@ -406,7 +406,7 @@ static HWSize_t WriteBucketRecord(FILE *f,
 
   // corner case
   if (li == NULL) {
-  	br.chain_len = 0;
+    br.chain_len = 0;
   }
 
   br.toDiskFormat();
@@ -419,7 +419,7 @@ static HWSize_t WriteBucketRecord(FILE *f,
   // Write the bucket_rec.
   // MISSING:
   if (fwrite(&br, sizeof(bucket_rec), 1, f) != 1)
-  	return 0;
+    return 0;
 
   // Calculate and return how many bytes we wrote.
   return sizeof(bucket_rec);
@@ -466,22 +466,22 @@ static HWSize_t WriteBucket(FILE *f,
 
       // Write out 
       if (fseek(f, offset + (j * sizeof(element_position_rec)), 
-      	                                        SEEK_SET) != 0) {
-      	LLIteratorFree(it);
-      	return 0;
+                                                SEEK_SET) != 0) {
+        LLIteratorFree(it);
+        return 0;
       }
 
       res = fwrite(&epr, sizeof(element_position_rec), 1, f);
       if (res != 1) {
-      	LLIteratorFree(it);
-      	return 0;
+        LLIteratorFree(it);
+        return 0;
       }
 
       // Write element
       ellen = fn(f, nextelpos, kv);
       if (ellen == 0) {
-      	LLIteratorFree(it);
-      	return 0;
+        LLIteratorFree(it);
+        return 0;
       }      
 
       // Advance to the next element in the chain, tallying up our
@@ -542,12 +542,12 @@ static HWSize_t WriteHashTable(FILE *f,
     LinkedList li = (ht->buckets)[i];
 
     retval_br = WriteBucketRecord(f, li, next_bucket_rec_offset, 
-    	                                        next_bucket_offset);
+                                              next_bucket_offset);
 
     if (li != NULL) {
-    	retval_b = WriteBucket(f, li, next_bucket_offset, fn);
+      retval_b = WriteBucket(f, li, next_bucket_offset, fn);
     } else {
-    	retval_b = 0;
+      retval_b = 0;
     }
 
     next_bucket_rec_offset += retval_br;

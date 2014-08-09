@@ -75,7 +75,7 @@ FileIndexReader::FileIndexReader(std::string filename,
       // MISSING:
       res = fread(buf, 1, 1, file_);
       Verify333(res == 1);
-      
+
       crcobj.FoldByteIntoCRC(buf[0]);
       left_to_read--;
     }

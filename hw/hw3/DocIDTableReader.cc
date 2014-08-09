@@ -105,7 +105,7 @@ list<docid_element_header> DocIDTableReader::GetDocIDList() {
     // variable stores the offset of this docid table within
     // the index file .
     // MISSING:
-    int res = fseek(file_, offset_ + sizeof(header_) + 
+    int res = fseek(file_, offset_ + sizeof(header_) +
                                 sizeof(bucket_rec) * i, SEEK_SET);
     Verify333(res == 0);
 
