@@ -147,12 +147,11 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
       // vector iterator
       auto it_vec = first_vec.begin();
 
-      bool found_one;
       while (it_vec != first_vec.end()) {
         HWSize_t rank = 0;
         
-        auto it_doc = it_vec.begin();
-        for (it_doc; it != it_vec.end(); it_doc++) {
+        auto it_doc = result_vec.begin();
+        for (it_doc; it != result_vec.end(); it_doc++) {
 
           // compare document names
           if (it_vec.document_name.compare(it_doc->document_name) == 0) {
