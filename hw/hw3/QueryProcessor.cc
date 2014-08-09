@@ -78,8 +78,8 @@ googleWord(DocTableReader **dtr_array_, IndexTableReader **itr_array_,
   vector<QueryProcessor::QueryResult> retvec;
 
   // iterate
-  for (HWSize_t i = 0, i < arraylen_; i++) {
-    DocTableReader *dtr = (itr_array_[i])->LookupWord(word);
+  for (HWSize_t i = 0; i < arraylen_; i++) {
+    DocIDTableReader *dtr = (itr_array_[i])->LookupWord(word);
     
     // no matches, move on
     if (dtr == nullptr) {
