@@ -73,14 +73,13 @@ QueryProcessor::~QueryProcessor() {
 vector<QueryProcessor::QueryResult>
 googleWord(DocTableReader **dtr_array_, IndexTableReader **itr_array_,
               HWSize_t arraylen_, const string word) {
-
   // set our retvec
   vector<QueryProcessor::QueryResult> retvec;
 
   // iterate
   for (HWSize_t i = 0; i < arraylen_; i++) {
     DocIDTableReader *dtr = (itr_array_[i])->LookupWord(word);
-    
+
     // no matches, move on
     if (dtr == nullptr) {
       continue;
@@ -120,7 +119,7 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
   string first_word = query.front();
 
   // Get docs that match the word
-  vector<QueryProcessor::QueryResult> first_vec = 
+  vector<QueryProcessor::QueryResult> first_vec =
       googleWord(dtr_array_, itr_array_, arraylen_, first_word);
 
   // if first_vec is empty, return the empty vector
@@ -130,7 +129,6 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
 
   // Check remaining query words
   if (query.size() > 1) {
-
     // query iterator
     auto it_query = query.begin();
     it_query++;  // I like to move it move it
@@ -148,12 +146,10 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
       auto it_vec = first_vec.begin();
 
       while (it_vec != first_vec.end()) {
-
         bool found_one = false;
 
         auto it_doc = result_vec.begin();
         while (it_doc != result_vec.end()) {
-
           // compare document names
           if (it_vec->document_name.compare(it_doc->document_name) == 0) {
             found_one = true;

@@ -219,7 +219,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
   // Write the header, in disk format.
   // You'll need to fseek() to the right location in the file.
   // MISSING:
-  // fseek() to the right location  
+  // fseek() to the right location
   docid_element_header header = {docID_ho, num_pos_ho};
   header.toDiskFormat();
 
@@ -243,7 +243,8 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     LLPayload_t payload = NULL;
     LLIteratorGetPayload(it, &payload);
 
-    DocPositionOffset_t *pos = (DocPositionOffset_t *)(&payload);
+    DocPositionOffset_t *pos = 
+        reinterpret_cast<DocPositionOffset_t *>(&payload);
 
     // Truncate to 32 bits, then convert it to network order and write it out.
     // MISSING:
@@ -252,7 +253,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     position.toDiskFormat();
 
     // Write it out
-    
+
     if (fseek(f, retval + offset, SEEK_SET) != 0)
       return 0;
 
@@ -269,7 +270,6 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
 
   // Calculate and return the total amount of data written.
   // MISSING: (fix this return value):
-  //return 0;
   return retval + (num_pos_ho * sizeof(docid_element_position));
 }
 
@@ -297,7 +297,8 @@ static HWSize_t WriteWordDocSetFn(FILE *f,
   // WriteDocPositionListFn helper function as the final parameter.
   HWSize_t htlen_ho = WriteHashTable(f,
                                      wds->docIDs,
-                                     offset + sizeof(worddocset_header) + wordlen_ho,
+                                     offset + sizeof(worddocset_header) 
+                                            + wordlen_ho,
                                      &WriteDocPositionListFn);
 
   // Write the header, in network order, in the right
@@ -308,12 +309,12 @@ static HWSize_t WriteWordDocSetFn(FILE *f,
   header.toDiskFormat();
 
   // fseek() to offset
-  if (fseek(f, offset, SEEK_SET) != 0) 
+  if (fseek(f, offset, SEEK_SET) != 0)
     return 0;
 
   res = fwrite(&header, sizeof(header), 1, f);
   if (res != 1)
-    return 0;  
+    return 0;
 
   retval += sizeof(header);
 
@@ -464,8 +465,8 @@ static HWSize_t WriteBucket(FILE *f,
       LLIteratorGetPayload(it, &payload);
       kv = (HTKeyValue*)payload;
 
-      // Write out 
-      if (fseek(f, offset + (j * sizeof(element_position_rec)), 
+      // Write out
+      if (fseek(f, offset + (j * sizeof(element_position_rec)),
                                                 SEEK_SET) != 0) {
         LLIteratorFree(it);
         return 0;
@@ -482,7 +483,7 @@ static HWSize_t WriteBucket(FILE *f,
       if (ellen == 0) {
         LLIteratorFree(it);
         return 0;
-      }      
+      }
 
       // Advance to the next element in the chain, tallying up our
       // lengths.
@@ -541,7 +542,7 @@ static HWSize_t WriteHashTable(FILE *f,
 
     LinkedList li = (ht->buckets)[i];
 
-    retval_br = WriteBucketRecord(f, li, next_bucket_rec_offset, 
+    retval_br = WriteBucketRecord(f, li, next_bucket_rec_offset,
                                               next_bucket_offset);
 
     if (li != NULL) {
