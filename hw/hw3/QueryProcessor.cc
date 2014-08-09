@@ -95,7 +95,7 @@ googleWord(DocTableReader **dtr_array_, IndexTableReader **itr_array_,
         doc_list.pop_front();
 
         string name;
-        if (dtr[i]->LookupDocID(head.docid, &name)) {
+        if (dtr_array_[i]->LookupDocID(head.docid, &name)) {
           QueryProcessor::QueryResult qres;
 
           qres.document_name = name;
@@ -135,7 +135,7 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
     auto it_query = query.begin();
     it_query++;  // I like to move it move it
 
-    while (!query.end()) {
+    while (it_query != query.end()) {
       vector<QueryProcessor::QueryResult> result_vec;
       result_vec = googleWord(dtr_array_, itr_array_, arraylen_, *it_query);
 
