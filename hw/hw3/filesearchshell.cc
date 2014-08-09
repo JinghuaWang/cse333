@@ -91,48 +91,52 @@ static void Usage(char *progname) {
 int main(int argc, char **argv) {
   if (argc < 2) Usage(argv[0]);
 
-  // Set up index list
-  list<string> index_list;
-
-  // add argv input
-  for (int i = 1; i < argc; i++) {
-  	index_list.push_back(argv[i]);
-  }
-
-  QueryProcessor qp(index_list);
-
   while (1) {
-    cout << "Enter query:" << endl;
-    vector<string> user_query;
-
-    string input;
-    getline(cin, input);
-
-    if (cin.eof()) {
-    	exit(EXIT_FAILURE);
-    }
-
-    string query_word;
-
-    istringstream iss(input, istringstream::in);
-
-    while (iss >> query_word) {
-    	query.push_back(query_word);
-    }
-
-    vector<QueryProcessor::QueryResult> retvec = qp.ProcessQuery(user_query);
-
-    int size = retvec.size();
-
-    if (size > 0) {
-    	for (int i = 0; i < size; i++) {
-    		cout << "  " << retvec[i].document_name << " (";
-    	  cout << retvec[i].rank << ")" << endl;
-    	}
-    } else {
-    	cout << "   [no results]" << endl;
-    }
+  	
   }
+
+  // // Set up index list
+  // list<string> index_list;
+
+  // // add argv input
+  // for (int i = 1; i < argc; i++) {
+  // 	index_list.push_back(argv[i]);
+  // }
+
+  // QueryProcessor qp(index_list);
+
+  // while (1) {
+  //   cout << "Enter query:" << endl;
+  //   vector<string> user_query;
+
+  //   string input;
+  //   getline(cin, input);
+
+  //   if (cin.eof()) {
+  //   	exit(EXIT_FAILURE);
+  //   }
+
+  //   string query_word;
+
+  //   istringstream iss(input, istringstream::in);
+
+  //   while (iss >> query_word) {
+  //   	query.push_back(query_word);
+  //   }
+
+  //   vector<QueryProcessor::QueryResult> retvec = qp.ProcessQuery(user_query);
+
+  //   int size = retvec.size();
+
+  //   if (size > 0) {
+  //   	for (int i = 0; i < size; i++) {
+  //   		cout << "  " << retvec[i].document_name << " (";
+  //   	  cout << retvec[i].rank << ")" << endl;
+  //   	}
+  //   } else {
+  //   	cout << "   [no results]" << endl;
+  //   }
+  // }
 
   return EXIT_SUCCESS;
 }

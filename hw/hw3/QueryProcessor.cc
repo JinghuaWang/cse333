@@ -131,9 +131,9 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
   if (query.size() > 1) {
     // query iterator
     auto it_query = query.begin();
-    it_query++;  // I like to move it move it
+    it_query++;  // Already checked the first word
 
-    while (it_query != query.end()) {
+    for (; it_query != query.end(); it_query++) {
       vector<QueryProcessor::QueryResult> result_vec;
       result_vec = googleWord(dtr_array_, itr_array_, arraylen_, *it_query);
 
@@ -148,19 +148,20 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
       while (it_vec != first_vec.end()) {
         bool found_one = false;
 
-        auto it_doc = result_vec.begin();
-        while (it_doc != result_vec.end()) {
+        // result_vec iterator
+        auto it_res = result_vec.begin();
+        while (it_res != result_vec.end()) {
           // compare document names
-          if (it_vec->document_name.compare(it_doc->document_name) == 0) {
+          if (it_vec->document_name.compare(it_res->document_name) == 0) {
             found_one = true;
             break;
           }
 
-          it_doc++;
+          it_res++;
         }
 
         if (found_one) {
-          it_vec->rank = it_doc->rank;
+          it_vec->rank += it_res->rank;
           it_vec++;
         } else {
           first_vec.erase(it_vec);
@@ -170,8 +171,6 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
           }
         }
       }
-
-      it_query++;
     }
   }
 

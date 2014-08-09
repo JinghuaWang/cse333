@@ -243,7 +243,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     LLPayload_t payload = NULL;
     LLIteratorGetPayload(it, &payload);
 
-    DocPositionOffset_t *pos = 
+    DocPositionOffset_t *pos =
         reinterpret_cast<DocPositionOffset_t *>(&payload);
 
     // Truncate to 32 bits, then convert it to network order and write it out.
@@ -297,7 +297,7 @@ static HWSize_t WriteWordDocSetFn(FILE *f,
   // WriteDocPositionListFn helper function as the final parameter.
   HWSize_t htlen_ho = WriteHashTable(f,
                                      wds->docIDs,
-                                     offset + sizeof(worddocset_header) 
+                                     offset + sizeof(worddocset_header)
                                             + wordlen_ho,
                                      &WriteDocPositionListFn);
 
