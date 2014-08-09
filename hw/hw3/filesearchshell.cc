@@ -22,9 +22,6 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace std;
-using namespace hw3;
-
 #include "./QueryProcessor.h"
 
 static void Usage(char *progname) {
@@ -92,7 +89,7 @@ int main(int argc, char **argv) {
   if (argc < 2) Usage(argv[0]);
 
   while (1) {
-  	
+
   }
 
   // // Set up index list
