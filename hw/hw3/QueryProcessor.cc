@@ -67,12 +67,112 @@ QueryProcessor::~QueryProcessor() {
   itr_array_ = nullptr;
 }
 
+// This (affectionately named) function takes a query and returns
+// a QueryResult vector (sorted by rank)
+// If nothing found, return empty vector
+vector<QueryProcessor::QueryResult>
+googleWord(DocTableReader **dtr_array_, IndexTableReader **itr_array_,
+              HWSize_t arraylen_, const string word) {
+
+  // set our retvec
+  vector<QueryProcessor::QueryResult> retvec;
+
+  // iterate
+  for (HWSize_t i = 0, i < arraylen_; i++) {
+    DocTableReader *dtr = (itr_array_[i])->LookupWord(word);
+    
+    // no matches, move on
+    if (dtr == nullptr) {
+      continue;
+    } else {
+      // Has matches, do stuff
+
+      // Get document list
+      list<docid_element_header> doc_list = dtr->GetDocIDList();
+
+      while (!doc_list.empty()) {
+        docid_element_header head = doc_list.front();
+        doc_list.pop_front();
+
+        string name;
+        if (dtr[i]->LookupDocID(head.docid, &name)) {
+          QueryProcessor::QueryResult qres;
+
+          qres.document_name = name;
+          qres.rank = head.num_positions;
+          retvec.push_back(qres);
+        }
+      }
+    }
+    delete dtr;
+  }
+  return retvec;
+}
+
 vector<QueryProcessor::QueryResult>
 QueryProcessor::ProcessQuery(const vector<string> &query) {
   Verify333(query.size() > 0);
   vector<QueryProcessor::QueryResult> finalresult;
 
   // MISSING:
+
+  // Grab the first query word
+  string first_word = query.front();
+
+  // Get docs that match the word
+  vector<QueryProcessor::QueryResult> first_vec = 
+      googleWord(dtr_array_, itr_array_, arraylen_, first_word);
+
+  // if first_vec is empty, return the empty vector
+  if (first_vec.empty()) {
+    return finalresult;
+  }
+
+  // Check remaining query words
+  if (query.size() > 1) {
+
+    // query iterator
+    auto it_query = query.begin();
+    it_query++;  // I like to move it move it
+
+    while (!query.end()) {
+      vector<QueryProcessor::QueryResult> result_vec;
+      result_vec = googleWord(dtr_array_, itr_array_, arraylen_, *it_query);
+
+      // Once again, if no doc matches, return empty vector
+      if (result_vec.empty()) {
+        return finalresult;
+      }
+
+      // vector iterator
+      auto it_vec = first_vec.begin();
+
+      bool found_one;
+      while (it_vec != first_vec.end()) {
+        HWSize_t rank = 0;
+        
+        auto it_doc = it_vec.begin();
+        for (it_doc; it != it_vec.end(); it_doc++) {
+
+          // compare document names
+          if (it_vec.document_name.compare(it_doc->document_name) == 0) {
+            it_vec->rank += it_doc->rank;
+            it_vec++;
+          } else {
+            first_vec.erase(it_vec);
+
+            if (first_vec.size() == 0) {
+              return finalresult;
+            }
+          }
+        }
+      }
+
+      it_query++;
+    }
+  }
+
+  finalresult = first_vec;
 
 
   // Sort the final results.
