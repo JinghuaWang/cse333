@@ -25,7 +25,7 @@
 #include "./QueryProcessor.h"
 
 static void Usage(char *progname) {
-  cerr << "Usage: " << progname << " [index files+]" << endl;
+  std::cerr << "Usage: " << progname << " [index files+]" << std::endl;
   exit(EXIT_FAILURE);
 }
 
