@@ -158,7 +158,7 @@ static HWSize_t WriteDocidDocnameFn(FILE *f,
   uint16_t slen_ho;
 
   // determine the filename length
-  // MISSING: (change this assignment to the correct thing):
+  // MISSING OK: (change this assignment to the correct thing):
   slen_ho = strlen((const char *) kv->value);
 
   // fwrite() the docid from "kv".  Remember to convert to
@@ -219,12 +219,12 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
   // Write the header, in disk format.
   // You'll need to fseek() to the right location in the file.
   // MISSING:
-  // fseek() to the right location
-  if (fseek(f, offset, SEEK_SET) != 0)
-  	return 0;
-  
+  // fseek() to the right location  
   docid_element_header header = {docID_ho, num_pos_ho};
   header.toDiskFormat();
+
+  if (fseek(f, offset, SEEK_SET) != 0)
+  	return 0;  
 
   res = fwrite(&header, sizeof(header), 1, f);
   if (res != 1)
@@ -243,12 +243,12 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
     LLPayload_t payload = NULL;
     LLIteratorGetPayload(it, &payload);
 
-    DocPositionOffset_t *pos = (DocPositionOffset_t *)(&payload);
+    DocPositionOffset_t pos = (DocPositionOffset_t *)(&payload);
 
     // Truncate to 32 bits, then convert it to network order and write it out.
     // MISSING:
 
-    position = {*pos};
+    position = {pos};
     position.toDiskFormat();
 
     // Write it out
@@ -278,7 +278,7 @@ static HWSize_t WriteDocPositionListFn(FILE *f,
 static HWSize_t WriteWordDocSetFn(FILE *f,
                                   IndexFileOffset_t offset,
                                   HTKeyValue *kv) {
-  size_t res;
+  sizeofe_t res;
   size_t retval = 0;
 
   // Extract the WordDocSet from the HTKeyValue.
@@ -325,7 +325,7 @@ static HWSize_t WriteWordDocSetFn(FILE *f,
   if (res != 1)
   	return 0;
 
-  retval += strlen(wds->word);
+  retval += wordlen_ho;
 
   // Calculate and return the total amount of data written.
   // MISSING: (fix this return value):
@@ -470,14 +470,12 @@ static HWSize_t WriteBucket(FILE *f,
       	LLIteratorFree(it);
       	return 0;
       }
-      if (res != 0) {
+
+      res = fwrite(&epr, sizeof(element_position_rec), 1, f);
+      if (res != 1) {
       	LLIteratorFree(it);
       	return 0;
       }
-
-      res = fwrite(&epr, sizeof(element_position_rec), 1, f);
-      if (res != 1)
-      	return 0;
 
       // Write element
       ellen = fn(f, nextelpos, kv);
