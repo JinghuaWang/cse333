@@ -149,19 +149,28 @@ QueryProcessor::ProcessQuery(const vector<string> &query) {
 
       while (it_vec != first_vec.end()) {
 
+        bool found_one = false;
+
         auto it_doc = result_vec.begin();
-        for (; it_doc != result_vec.end(); it_doc++) {
+        while (it_doc != result_vec.end()) {
 
           // compare document names
           if (it_vec->document_name.compare(it_doc->document_name) == 0) {
-            it_vec->rank += it_doc->rank;
-            it_vec++;
-          } else {
-            first_vec.erase(it_vec);
+            found_one = true;
+            break;
+          }
 
-            if (first_vec.size() == 0) {
-              return finalresult;
-            }
+          it_doc++;
+        }
+
+        if (found_one) {
+          it_vec->rank = it_doc->rank;
+          it_vec++;
+        } else {
+          first_vec.erase(it_vec);
+
+          if (first_vec.size() == 0) {
+            return finalresult;
           }
         }
       }
