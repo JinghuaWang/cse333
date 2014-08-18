@@ -36,7 +36,7 @@
 
 static int32_t *nums;
 static const unsigned int kNumThreads = 4;
-static int64_t partial_sums[kNumThreads];
+static int64_t partial_sums[4];
 
 // return the sum a[lo]+a[lo+1]+ ... + a[hi]
 // pre: 0 <= lo && hi < length of a. (0 is returned if lo > hi)
