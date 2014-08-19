@@ -102,16 +102,16 @@ bool ServerSocket::BindAndListen(int ai_family, int *listen_fd) {
     // so make the port we bind to available again as soon as we
     // exit, rather than waiting for a few tens of seconds to recycle it.
     int optval = 1;
-    setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR,
+    setsockopt(listen_sock_fd_, SOL_SOCKET, SO_REUSEADDR,
                &optval, sizeof(optval));
 
     // Try binding the socket to the address and port number returned
     // by getaddrinfo().
-    if (bind(listen_fd, rp->ai_addr, rp->ai_addrlen) == 0) {
+    if (bind(listen_sock_fd_, rp->ai_addr, rp->ai_addrlen) == 0) {
       // Bind worked!
 
       // Return to the caller the address family.
-      sock_family = rp->ai_family;
+      sock_family_ = rp->ai_family;
       break;
     }
 
@@ -130,7 +130,7 @@ bool ServerSocket::BindAndListen(int ai_family, int *listen_fd) {
   }
 
   // Success. Tell the OS that we want this to be a listening socket.
-  if (listen(listen_fd, SOMAXCONN) != 0) {
+  if (listen(listen_sock_fd_, SOMAXCONN) != 0) {
     close(listen_sock_fd_);
     return -1;
   }
@@ -186,11 +186,11 @@ bool ServerSocket::Accept(int *accepted_fd,
       // Client is using IPv6
       char astring[INET6_ADDRSTRLEN];
       struct sockaddr_in6 *in6 = reinterpret_cast<struct sockaddr_in6 *>(addr);
-      inet_ntop(AF_INET6, &(in6->sin6_addr), astring, INET6_ADDRSTRLEN);)
+      inet_ntop(AF_INET6, &(in6->sin6_addr), astring, INET6_ADDRSTRLEN);
 
       // Store in output params
       *client_addr = std::string(astring);
-      *client_port = htons(in6->sin6_addr);
+      *client_port = htons(in6->sin6_port);
     } else {
       std::cout << " ???? address and port ???? " << std::endl;
       return false;
@@ -198,7 +198,7 @@ bool ServerSocket::Accept(int *accepted_fd,
 
     // Get client DNS
     char hostname[1024];
-    if (getnameinfo(addr, addrlen, hostname, 1024, NULL, 0, 0) != 0) {
+    if (getnameinfo(addr, caddr_len, hostname, 1024, NULL, 0, 0) != 0) {
       // DNS failed
       return false;
     }
