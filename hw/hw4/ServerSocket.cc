@@ -118,7 +118,7 @@ bool ServerSocket::BindAndListen(int ai_family, int *listen_fd) {
     // The bind failed.  Close the socket, then loop back around and
     // try the next address/port returned by getaddrinfo().
     close(listen_sock_fd_);
-    listen_fd = -1;
+    listen_sock_fd_ = -1;
   }
 
   // Free the structure returned by getaddrinfo()
@@ -157,7 +157,7 @@ bool ServerSocket::Accept(int *accepted_fd,
   while (1) {
     struct sockaddr_storage caddr;
     socklen_t caddr_len = sizeof(caddr);
-    int client_fd = accept(listen_fd,
+    int client_fd = accept(listen_sock_fd_,
                            reinterpret_cast<struct sockaddr *>(&caddr),
                            &caddr_len);
     if (client_fd < 0) {
