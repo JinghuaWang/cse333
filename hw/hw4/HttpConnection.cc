@@ -76,6 +76,7 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
     }
   }
 
+  // The following checks should never return false, but we're paranoid.
   // Check for \r\n\r\n
   if (end_position == string::npos) {
     return false;
@@ -91,7 +92,9 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
     return false;
   }
 
-  // Above checks should never happen...
+  // Above checks should never return false...
+
+
   // Get header and store in output parameter
   *request = ParseRequest(end_position + 4);
 
@@ -139,7 +142,12 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
   // Make sure to split on "\r\n" delimiter
   boost::split(lines, str, boost::is_any_of("\r\n"));
 
-  // Extra the URI from the first line and store in req.URI
+  // Trim whitespace
+  for (uint32_t i = 0; i < lines.size(); i++) {
+    boost::trim(lines[i]);
+  }
+
+  // Extract the URI from the first line and store in req.URI
   std::vector<std::string> tokens;
   boost::split(tokens, lines[0], boost::is_any_of(" "));
   req.URI = tokens[1];
