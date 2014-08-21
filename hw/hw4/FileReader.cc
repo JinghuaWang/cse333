@@ -51,7 +51,7 @@ bool FileReader::ReadFile(std::string *str) {
 
   // MISSING:
 
-  // Check if it exists
+  // Check the file path is safe 
   if (!IsPathSafe(basedir_, fullfile)) {
     return false;
   }

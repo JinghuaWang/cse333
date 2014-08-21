@@ -141,7 +141,6 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
 
   // Make sure to split on "\r\n" delimiter
   boost::iter_split(lines, str, boost::algorithm::first_finder("\r\n"));
-  // boost::split(lines, str, boost::is_any_of("\r\n"));
 
   // Trim whitespace
   for (uint32_t i = 0; i < lines.size(); i++) {
@@ -150,8 +149,8 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
 
   // Extract the URI from the first line and store in req.URI
   std::vector<std::string> tokens;
-  boost::split(tokens, lines[0], boost::is_any_of(" "));
-  req.URI = tokens[1];
+  boost::split(tokens, lines.front(), boost::is_any_of(" "));
+  req.URI = tokens.at(1);
 
   // For each additional line beyond the first, extract our the header name
   // and value and store them in req.headers.
@@ -164,7 +163,8 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
     boost::to_lower(moretokens[0]);
     
     // Store in req.headers
-    req.headers.insert({moretokens[0], moretokens[1]});
+    // req.headers.insert({moretokens[0], moretokens[1]});
+    req.headers[moretokens.front()] = moretokens.back();  // valgrind
   }
 
   return req;
