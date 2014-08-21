@@ -332,7 +332,7 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
           ret.body += qres[i].document_name;          
         }
         ret.body += "\">";
-        ret.body += qres.[i].document_name;
+        ret.body += qres[i].document_name;
         ret.body += "</a> [";
         ret.body += std::to_string(qres[i].rank);
         ret.body += "]<br>\r\n";
