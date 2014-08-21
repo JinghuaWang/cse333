@@ -51,7 +51,7 @@ bool FileReader::ReadFile(std::string *str) {
 
   // MISSING:
 
-  // Check the file path is safe 
+  // Check the file path is safe
   if (!IsPathSafe(basedir_, fullfile)) {
     return false;
   }
@@ -65,7 +65,7 @@ bool FileReader::ReadFile(std::string *str) {
   if (contents == NULL) {
     return false;
   }
-  
+
   // Store contents in output parameter
   *str = std::string(contents, filesize);
 

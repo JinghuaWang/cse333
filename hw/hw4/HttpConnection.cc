@@ -98,7 +98,7 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
   // Get header and store in output parameter
   *request = ParseRequest(end_position + 4);
 
-  // preserve everything after the "\r\n\r\n" in buffer_ for the 
+  // preserve everything after the "\r\n\r\n" in buffer_ for the
   // next time the caller invokes GetNextRequest()
   buffer_ = buffer_.substr(end_position + 4);
 
@@ -156,12 +156,12 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
   // and value and store them in req.headers.
   for (uint32_t i = 1; i < lines.size(); i++) {
     std::vector<std::string> moretokens;
-    boost::iter_split(moretokens, lines[i], 
+    boost::iter_split(moretokens, lines[i],
                                 boost::algorithm::first_finder(": "));
 
     // Convert to lowercase
     boost::to_lower(moretokens[0]);
-    
+
     // Store in req.headers
     // req.headers.insert({moretokens[0], moretokens[1]});
     req.headers[moretokens.front()] = moretokens.back();  // valgrind

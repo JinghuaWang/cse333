@@ -80,7 +80,7 @@ bool ServerSocket::BindAndListen(int ai_family, int *listen_fd) {
   int res = getaddrinfo(NULL, port.c_str(), &hints, &result);
 
   if (res != 0) {
-    std::cerr << "getaddrinfo() failed." << std::endl; 
+    std::cerr << "getaddrinfo() failed." << std::endl;
     return false;
   }
 

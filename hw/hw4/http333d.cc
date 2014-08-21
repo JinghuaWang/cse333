@@ -111,14 +111,14 @@ void GetPortAndPath(int argc,
 
   // B Check that the port number (from argv[1]) is reasonable
   *port = atoi(argv[1]);
-  
+
   // Ports below 1024 require root access and should be deemed unusable
   // Obviously no port can go above 65535
   if (*port < 1024 || *port > 65535) {
     cerr << "The port number " << *port << " is unreasonable." << endl;
     Usage(argv[0]);
   }
-  
+
   // C Check that the path (argv[2]) is a readable directory
   struct stat dirstat;
   if (stat(argv[2], &dirstat) == -1) {

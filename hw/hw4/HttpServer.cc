@@ -288,9 +288,9 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
     boost::split(qwords, query, boost::is_any_of(" "));
 
     // Process the query and get the matched results
-    std::vector<hw3::QueryProcessor::QueryResult> qres = 
+    std::vector<hw3::QueryProcessor::QueryResult> qres =
                                                     qp.ProcessQuery(qwords);
-  
+
     int size = qres.size();
     if (size == 0) {
       // QueryProcessor found no matching results
@@ -319,7 +319,7 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
 
       // Include results html
       ret.body += "<ul>\r\n";
-      
+
       // Each doc gets its own hyperlink
       for (int i = 0; i < size; i++) {
         ret.body += " <li> <a href=\"";
@@ -329,7 +329,7 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
           ret.body += EscapeHTML(qres[i].document_name);
         } else {
           ret.body += "/static/";
-          ret.body += qres[i].document_name;          
+          ret.body += qres[i].document_name;
         }
         ret.body += "\">";
         ret.body += qres[i].document_name;
@@ -339,7 +339,7 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
       }
     }
     ret.body += "</ul>\r\n";
-  }  
+  }
 
   // The end of our 333gle html code
   ret.body += "</body>\r\n";
