@@ -52,7 +52,7 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
 
   // Check for "\r\n\r\n"
   size_t end_position = buffer_.find("\r\n\r\n");
-  if (end_position == npos) {
+  if (end_position == (size_t) -1) {
     int bytes_read;
     unsigned char buf[1024];
 
@@ -132,7 +132,7 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
   std::vector<std::string> lines;
 
   // Make sure to split on "\r\n" delimiter
-  boost::split(lines, str, is_any_of("\r\n"));
+  boost::split(lines, str, boost::is_any_of("\r\n"));
 
   // Extra the URI from the first line and store in req.URI
   std::vector<std::string> tokens;
@@ -142,7 +142,7 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
   // For each additional line beyond the first, extract our the header name
   // and value and store them in req.headers.
   for (uint32_t i = 1; i < lines.size(); i++) {
-    std:;vector<std::string> moretokens;
+    std::vector<std::string> moretokens;
     boost::split(moretokens, lines[i], boost::is_any_of(": "));
 
     // Convert to lowercase
