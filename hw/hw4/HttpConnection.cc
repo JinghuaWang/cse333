@@ -157,7 +157,8 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
   // and value and store them in req.headers.
   for (uint32_t i = 1; i < lines.size(); i++) {
     std::vector<std::string> moretokens;
-    boost::iter_split(moretokens, lines[i], boost::algorithm::first_finder(": "));
+    boost::iter_split(moretokens, lines[i], 
+                                boost::algorithm::first_finder(": "));
 
     // Convert to lowercase
     boost::to_lower(moretokens[0]);

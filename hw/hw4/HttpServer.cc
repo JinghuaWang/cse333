@@ -103,6 +103,33 @@ void HttpServer_ThrFn(ThreadPool::Task *t) {
     // the connection.
 
     // MISSING:
+
+    // Create HttpConnection object
+    HttpConnection hc(hst->client_fd);
+
+    // Create HttpRequest object
+    HttpRequest req;
+
+    // Read in next request from client
+    if (!hc.GetNextRequest(&req)) {
+      close(hst->client_fd);
+      done = true;
+    }
+
+    // Process request by invoking ProcessRequest()
+    HttpResponse resp = ProcessRequest(req, hst->basedir, hst->indices);
+
+    // Use hc to write the response
+    if (!hc.WriteResponse(resp)) {
+      close(hst->client_fd);
+      done = true;
+    }
+
+    // If client sent "Connection: close\r\n" header, shut 'er down
+    if (req.headers["connection"] == "close") {
+      close(hst->client_fd);
+      done = true;
+    }
   }
 }
 
@@ -145,6 +172,45 @@ HttpResponse ProcessFileRequest(const std::string &uri,
 
   // MISSING:
 
+  // Use URLParser class to figure out what filename user is asking for
+  URLParser parser;
+  parser.Parse(uri);
+  fname = parser.get_path().substr(8);  // Gets rid of /static/
+
+  // Use FileReader class to read the file into memory
+  FileReader fr(basedir, fname);
+
+  // Copy the file content into the ret.body
+  if (fr.ReadFile(&ret.body)) {
+    // Get file suffix
+    int dot = fname.find(".");
+    std::string suffix = fname.substr(dot);
+
+    // Depending on the file name suffix, set the response Content-type header
+    if (suffix == ".html" || suffix == ".htm") {
+      ret.headers["Content-type"] = "text/html";
+    } else if (suffix == ".jpeg" || suffix == ".jpg") {
+      ret.headers["Content-type"] = "image/jpeg";
+    } else if (suffix == ".png") {
+      ret.headers["Content-type"] = "image/png";
+    } else if (suffix == ".gif") {
+      ret.headers["Content-type"] = "image/gif";
+    } else if (suffix == ".css") {
+      ret.headers["Content-type"] = "text/css";
+    } else if (suffix == ".xml") {
+      ret.headers["Content-type"] = "text/xml";
+    } else if (suffix == ".tiff") {
+      ret.headers["Content-type"] = "image/tiff";
+    } else {
+      ret.hedaers["Content-type"] = "text/plain";
+    }
+
+    // Set response code, protocol, and message
+    ret.response_code = 200;
+    ret.protocol = "HTTP/1.1";
+    ret.message = "OK";
+    return ret;
+  }
 
 
   // If you couldn't find the file, return an HTTP 404 error.
@@ -185,6 +251,102 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
 
   // MISSING:
 
+  // Make the 333gle logo and the search/box button
+  ret.body  = "<html><head><title>333gle</title></head>\r\n";
+  ret.body += "<body>\r\n";
+  ret.body += <"center style=\"font-size:500%;\">\r\n";
+  ret.body += "<span style=\"position:relative;bottom:-0.33em;color:orange;\">"
+  ret.body += "3</span><span style=\"color:red;\">3</span><span style=\"";
+  ret.body += "color:gold;\">3</span><span style=\"color:blue;\">g</span>";
+  ret.body += "<span style=\"color:green;\">l</span><span style=\"color:red;";
+  ret.body += "\">e</span>\r\n";
+  ret.body += "</center>\r\n";
+  ret.body += "<p>\r\n";
+  ret.body += "<div style=\"height:20px;\"></div>\r\n";
+  ret.body += "<center>\r\n";
+  ret.body += "<form action=\"/query\" method=\"get\">\r\n";
+  ret.body += "<input type=\"text\" size=30 name=\"terms\" />\r\n";
+  ret.body += "<input type=\"submit\" value=\"Search\" />\r\n";
+  ret.body += "</form>\r\n";
+  ret.body += "</center><p>\r\n";
+  // (wait for /body and /html until after search results)
+
+  // Parse URI using URLParser and extract search terms
+  URLParser qparser;
+  qparser.Parse(uri);
+  std::string query = qparser.get_args()["terms"];
+  boost::trim(query);
+  boost::to_lower(query);  // Convert query terms to lower case
+
+  // if the user had previously typed in a query, display search results
+  if (uri.find("query?terms=") != std::string::npos) {
+    // Process query using hw3::QueryProcessor
+    hw3::QueryProcessor qp(*indices, false);
+
+    // Get individual words from query string
+    std::vector<std::string> qwords;
+    boost::split(qwords, query, boost::is_any_of(" "));
+
+    // Process the query and get the matched results
+    std::vector<hw3::QueryProcessor::QueryResult> qres = 
+                                                    qp->ProcessQuery(query);
+  
+    int size = qres.size();
+    if (size == 0) {
+      // QueryProcessor found no matching results
+      // Update our html code
+      ret.body += "<p><br>\r\n";
+      ret.body += "No results found for <b>";
+      ret.body += EscapeHTML(query);
+      ret.body += "</b>\r\n";
+      ret.body += "<p>\r\n";
+      ret.body += "\r\n";
+    } else {
+      // QueryProcess found something
+      // Update our html (now with results!)
+      ret.body += "<p><br>\r\n";
+      std::stringstream ss;
+      if (size <= 1) {
+        ss << "1 result found for <b>";
+      } else {
+        ss << size << " results found for <b>";
+      }
+      ret.body += ss.str();
+      ss.str("");  // clear it for use later
+      ret.body += EscapeHTML(query);
+      ret.body += "</b>\r\n";
+      ret.body += "<p>\r\n\n";
+
+      // Include results html
+      ret.body += "<ul>\r\n";
+      
+      // Each doc gets its own hyperlink
+      for (uint32_t i = 0; i < size; i++) {
+        ret.body += " <li> <a href=\"";
+
+        // Check for static vs http
+        if (qres.document_name.substr(0, 7) == "http://") {
+          ret.body += EscapeHTML(qres[i].document_name);
+        } else {
+          ret.body += "/static/";
+          ret.body += qres[i].document_name;
+          ret.body += "</a> [";
+          ret.body += std::to_string(qres[i].rank);
+          ret.body += "]<br>\r\n";
+        }
+      }
+      ret.body += "</ul>\r\n";
+    }
+  }  
+
+  // The end of our 333gle html code
+  ret.body += "</body>\r\n";
+  ret.body += "</html>\r\n";
+
+  // Set response code, protocol, and message
+  ret.response_code = 200;
+  ret.protocol = "HTTP/1.1";
+  ret.message = "OK";
 
   return ret;
 }

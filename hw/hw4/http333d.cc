@@ -103,5 +103,59 @@ void GetPortAndPath(int argc,
   //      are readable files.
 
   // MISSING:
-}
 
+  // A Check that we have a sane number of command line arguments
+  if (argc < 4) {
+    Usage(argv[0]);
+  }
+
+  // B Check that the port number (from argv[1]) is reasonable
+  *port = atoi(argv[1]);
+  
+  // Ports below 1024 require root access and should be deemed unusable
+  // Obviously no port can go above 65535
+  if (*port < 1024 || *port > 65535) {
+    cerr << "The port number " << *port << " is unreasonable." << endl;
+    Usage(argv[0]);
+  }
+  
+  // C Check that the path (argv[2]) is a readable directory
+  struct stat dirstat;
+  if (stat(argv[2], &dirstat) == -1) {
+    cerr << "The directory " << argv[2] << " is unreadable." << endl;
+    Usage(argv[0]);
+  }
+
+  if (!S_ISDIR(dirstat.st_mode)) {
+    cerr << argv[2] << " is not a valid directory." << endl;
+    Usage(argv[0]);
+  }
+
+  // Path is okay... store in output parameter
+  *path = std::string(argv[2]);
+
+  // D Check that we have at least one index and that all
+  // indices are readable files
+
+  // Check for readable files
+  for (int i = 3; i < argc; i++) {
+    struct stat fstat;
+    if (stat(argv[i], &fstat) == -1) {
+      cerr << argv[i] << " is not a readable file." << endl;
+      Usage(argv[0]);
+    }
+
+    if (!S_ISREG(fstat.st_mode)) {
+      cerr << argv[i] << " is not a valid file." << endl;
+      Usage(argv[0]);
+    }
+
+    indices->push_back(argv[i]);
+  }
+
+  // Check that we have at least one index
+  if (indices->size() == 0) {
+    cerr << "We don't have a readable index." << endl;
+    Usage(argv[0]);
+  }
+}
