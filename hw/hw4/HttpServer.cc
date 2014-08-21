@@ -202,7 +202,7 @@ HttpResponse ProcessFileRequest(const std::string &uri,
     } else if (suffix == ".tiff") {
       ret.headers["Content-type"] = "image/tiff";
     } else {
-      ret.hedaers["Content-type"] = "text/plain";
+      ret.headers["Content-type"] = "text/plain";
     }
 
     // Set response code, protocol, and message
@@ -254,8 +254,8 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
   // Make the 333gle logo and the search/box button
   ret.body  = "<html><head><title>333gle</title></head>\r\n";
   ret.body += "<body>\r\n";
-  ret.body += <"center style=\"font-size:500%;\">\r\n";
-  ret.body += "<span style=\"position:relative;bottom:-0.33em;color:orange;\">"
+  ret.body += "<center style=\"font-size:500%;\">\r\n";
+  ret.body += "<span style=\"position:relative;bottom:-0.33em;color:orange;\">";
   ret.body += "3</span><span style=\"color:red;\">3</span><span style=\"";
   ret.body += "color:gold;\">3</span><span style=\"color:blue;\">g</span>";
   ret.body += "<span style=\"color:green;\">l</span><span style=\"color:red;";
@@ -289,7 +289,7 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
 
     // Process the query and get the matched results
     std::vector<hw3::QueryProcessor::QueryResult> qres = 
-                                                    qp->ProcessQuery(query);
+                                                    qp.ProcessQuery(query);
   
     int size = qres.size();
     if (size == 0) {
@@ -321,11 +321,11 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
       ret.body += "<ul>\r\n";
       
       // Each doc gets its own hyperlink
-      for (uint32_t i = 0; i < size; i++) {
+      for (int i = 0; i < size; i++) {
         ret.body += " <li> <a href=\"";
 
         // Check for static vs http
-        if (qres.document_name.substr(0, 7) == "http://") {
+        if (qres[i].document_name.substr(0, 7) == "http://") {
           ret.body += EscapeHTML(qres[i].document_name);
         } else {
           ret.body += "/static/";
