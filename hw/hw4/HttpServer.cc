@@ -289,7 +289,7 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
 
     // Process the query and get the matched results
     std::vector<hw3::QueryProcessor::QueryResult> qres = 
-                                                    qp.ProcessQuery(query);
+                                                    qp.ProcessQuery(qwords);
   
     int size = qres.size();
     if (size == 0) {
