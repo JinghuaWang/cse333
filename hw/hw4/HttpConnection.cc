@@ -69,7 +69,7 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
 
         // Check again for "\r\n\r\n"
         end_position = buffer_.find("\r\n\r\n");
-        if (end_position != npos) {
+        if (end_position != (size_t) -1) {
           break;
         }
       }
