@@ -329,9 +329,11 @@ HttpResponse ProcessQueryRequest(const std::string &uri,
           ret.body += EscapeHTML(qres[i].document_name);
         } else {
           ret.body += "/static/";
+          ret.body += qres[i].document_name;          
         }
-        ret.body += qres[i].document_name;
-        ret.body += "\"</a> [";
+        ret.body += "\">";
+        ret.body += qres.[i].document_name;
+        ret.body += "</a> [";
         ret.body += std::to_string(qres[i].rank);
         ret.body += "]<br>\r\n";
       }
