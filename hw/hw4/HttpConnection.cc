@@ -52,7 +52,7 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
 
   // Check for "\r\n\r\n"
   size_t end_position = buffer_.find("\r\n\r\n");
-  if (end_position == (size_t) -1) {
+  if (end_position == string::npos) {
     int bytes_read;
     unsigned char buf[1024];
 
@@ -67,13 +67,18 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
         // append to buffer_
         buffer_ += string(reinterpret_cast<char*>(buf), bytes_read);
 
-        // Check again for "\r\n\r\n"
+        // break if "\r\n\r\n"
         end_position = buffer_.find("\r\n\r\n");
-        if (end_position != (size_t) -1) {
+        if (end_position != string::npos) {
           break;
         }
       }
     }
+  }
+
+  // Check for \r\n\r\n
+  if (end_position == string::npos) {
+    return false;
   }
 
   // Check buffer size
