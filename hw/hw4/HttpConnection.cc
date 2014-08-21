@@ -50,6 +50,49 @@ bool HttpConnection::GetNextRequest(HttpRequest *request) {
 
   // MISSING:
 
+  // Check for "\r\n\r\n"
+  size_t end_position = buffer_.find("\r\n\r\n");
+  if (end_position == npos) {
+    int bytes_read;
+    unsigned char buf[1024];
+
+    // Keep reading until something fails
+    while (1) {
+      bytes_read = WrappedRead(fd_, buf, 1024);
+      if (bytes_read == 0) {
+        break;  // EOF or connection dropped
+      } else if (bytes_read == -1) {
+        return false;  // read failed;
+      } else {
+        // append to buffer_
+        buffer_ += string(reinterpret_cast<char*>(buf), bytes_read);
+
+        // Check again for "\r\n\r\n"
+        end_position = buffer_.find("\r\n\r\n");
+        if (end_position != npos) {
+          break;
+        }
+      }
+    }
+  }
+
+  // Check buffer size
+  if (buffer_.length() == 0) {
+    return false;
+  }
+
+  // Do another check
+  if (end_position + 4 > buffer_.length()) {
+    return false;
+  }
+
+  // Above checks should never happen...
+  // Get header and store in output parameter
+  *request = ParseRequest(end_position + 4);
+
+  // preserve everything after the "\r\n\r\n" in buffer_ for the 
+  // next time the caller invokes GetNextRequest()
+  buffer_ = buffer_.substr(end_position + 4);
 
   return true;
 }
@@ -85,6 +128,29 @@ HttpRequest HttpConnection::ParseRequest(size_t end) {
 
   // MISSING:
 
+  // Split the header into lines
+  std::vector<std::string> lines;
+
+  // Make sure to split on "\r\n" delimiter
+  boost::split(lines, str, is_any_of("\r\n"));
+
+  // Extra the URI from the first line and store in req.URI
+  std::vector<std::string> tokens;
+  boost::split(tokens, lines[0], boost::is_any_of(" "));
+  req.URI = tokens[1];
+
+  // For each additional line beyond the first, extract our the header name
+  // and value and store them in req.headers.
+  for (uint32_t i = 1; i < lines.size(); i++) {
+    std:;vector<std::string> moretokens;
+    boost::split(moretokens, lines[i], boost::is_any_of(": "));
+
+    // Convert to lowercase
+    boost::to_lower(moretokens[0]);
+    
+    // Store in req.headers
+    req.headers.insert({moretokens[0], moretokens[1]});
+  }
 
   return req;
 }
